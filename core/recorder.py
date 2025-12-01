@@ -99,17 +99,25 @@ class ScreenRecorder:
         self._stop_event.set()
         self._recording = False
         
-        # 等待录制线程结束
+        # 等待录制线程结束（缩短超时时间）
         if self._record_thread and self._record_thread.is_alive():
-            self._record_thread.join(timeout=5)
+            self._record_thread.join(timeout=2)
+            if self._record_thread.is_alive():
+                logger.warning("录制线程未能在超时内停止")
         
         # 保存当前切片
-        self._finalize_current_chunk()
+        try:
+            self._finalize_current_chunk()
+        except Exception as e:
+            logger.error(f"保存切片时出错: {e}")
         
         # 释放 dxcam
-        if self._camera:
-            del self._camera
-            self._camera = None
+        try:
+            if self._camera:
+                del self._camera
+                self._camera = None
+        except Exception as e:
+            logger.error(f"释放相机时出错: {e}")
         
         logger.info("录制已停止")
     

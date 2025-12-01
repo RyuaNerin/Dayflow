@@ -82,11 +82,21 @@ class AnalysisScheduler:
         self._stop_event.set()
         self._running = False
         
+        # 使用较短的超时时间，避免阻塞太久
         if self._scheduler_thread and self._scheduler_thread.is_alive():
-            self._scheduler_thread.join(timeout=10)
+            self._scheduler_thread.join(timeout=2)
+            if self._scheduler_thread.is_alive():
+                logger.warning("调度器线程未能在超时内停止")
         
+        # 安全关闭事件循环
         if self._loop:
-            self._loop.close()
+            try:
+                if self._loop.is_running():
+                    self._loop.call_soon_threadsafe(self._loop.stop)
+                if not self._loop.is_closed():
+                    self._loop.close()
+            except Exception as e:
+                logger.warning(f"关闭事件循环时出错: {e}")
             self._loop = None
         
         logger.info("调度器已停止")

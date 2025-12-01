@@ -438,6 +438,7 @@ class MainWindow(QMainWindow):
         self.storage = StorageManager()
         self.recording_manager = None
         self.analysis_manager = None
+        self._stopping = False  # 防止重复点击停止按钮
         
         self._setup_window()
         self._setup_ui()
@@ -642,19 +643,38 @@ class MainWindow(QMainWindow):
             self.recording_manager = RecordingManager(self.storage)
         
         if self.recording_manager.is_recording:
+            # 防止重复点击
+            if self._stopping:
+                logger.debug("已在停止中，忽略重复点击")
+                return
+            self._stopping = True
+            
             # 立即更新 UI，让用户知道正在停止
             self.record_btn.setEnabled(False)
             self.record_btn.setText("停止中...")
             self.pause_btn.setEnabled(False)
+            self.tray_record_action.setEnabled(False)
+            
+            # 显示提示消息
+            self.tray_icon.showMessage(
+                "Dayflow",
+                "正在保存数据并结束录制，请稍候...",
+                QSystemTrayIcon.Information,
+                3000  # 显示 3 秒
+            )
             
             # 在后台线程中执行停止操作
             import threading
             def stop_in_background():
-                self.recording_manager.stop_recording()
-                self._stop_analysis()
-                # 回到主线程更新 UI
-                from PySide6.QtCore import QMetaObject, Qt, Q_ARG
-                QMetaObject.invokeMethod(self, "_on_recording_stopped", Qt.QueuedConnection)
+                try:
+                    self.recording_manager.stop_recording()
+                    self._stop_analysis()
+                except Exception as e:
+                    logger.error(f"停止录制时出错: {e}")
+                finally:
+                    # 回到主线程更新 UI
+                    from PySide6.QtCore import QMetaObject, Qt
+                    QMetaObject.invokeMethod(self, "_on_recording_stopped", Qt.QueuedConnection)
             
             threading.Thread(target=stop_in_background, daemon=True).start()
         else:
@@ -694,14 +714,24 @@ class MainWindow(QMainWindow):
     @Slot()
     def _on_recording_stopped(self):
         """录制停止后的 UI 更新（在主线程中调用）"""
+        self._stopping = False  # 重置停止标志
         self.record_btn.setEnabled(True)
         self._update_record_button(False)
         self.recording_indicator.set_recording(False)
+        self.tray_record_action.setEnabled(True)
         self.tray_record_action.setText("▶ 开始录制")
         self.pause_btn.setEnabled(False)
         self.pause_btn.setText("⏸ 暂停")
         self.tray_pause_action.setEnabled(False)
         self.tray_pause_action.setText("⏸ 暂停录制")
+        
+        # 显示完成提示
+        self.tray_icon.showMessage(
+            "Dayflow",
+            "录制已停止，数据已保存 ✓",
+            QSystemTrayIcon.Information,
+            2000
+        )
     
     def _toggle_pause(self):
         """切换暂停状态"""
