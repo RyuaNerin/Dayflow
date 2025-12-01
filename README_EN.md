@@ -133,6 +133,22 @@ pip install -r requirements.txt
 python main.py
 ```
 
+### Build as EXE (Optional)
+
+To distribute to others without requiring Python installation:
+
+```bash
+# Install packaging tool
+pip install pyinstaller
+
+# Run build script
+python build.py
+
+# Or double-click build.bat
+```
+
+After building, the `dist/Dayflow/` folder can be copied and shared directly.
+
 ---
 
 ## 📖 User Guide
@@ -236,7 +252,7 @@ Thanks to the original author for the creativity and open-source spirit! 🙏
 
 ## 📄 License
 
-[MIT License](LICENSE) © 2024
+[MIT License](LICENSE) © 2024-2025
 
 ---
 
