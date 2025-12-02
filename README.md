@@ -102,7 +102,7 @@
 
 ```bash
 # 1. 克隆项目
-git clone https://github.com/yourusername/Dayflow.git
+git clone https://github.com/SeiShonagon520/Dayflow.git
 cd Dayflow
 
 # 2. 创建 Conda 环境（推荐）

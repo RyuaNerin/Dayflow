@@ -102,7 +102,7 @@ Each card contains:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/yourusername/Dayflow.git
+git clone https://github.com/SeiShonagon520/Dayflow.git
 cd Dayflow
 
 # 2. Create Conda environment (recommended)
