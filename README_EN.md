@@ -54,6 +54,8 @@
 
 | Feature | Description |
 |---------|-------------|
+| 📧 **Email Reports** | Auto-send productivity reports to your email at 12:00 and 22:00 daily |
+| 🤖 **AI Comments** | AI-generated personalized daily summary with friendly encouragement |
 | 📊 **Statistics Panel** | New stats page with time distribution and productivity trends |
 | 📅 **Date Navigation** | View history with previous/next day and quick "Today" buttons |
 | 📥 **CSV Export** | One-click export activity data to CSV for analysis and archiving |
@@ -169,7 +171,21 @@ After building, the `dist/Dayflow/` folder can be copied and shared directly.
 - Each card represents an activity period
 - Includes: category, applications used, productivity score
 
-### 4️⃣ System Tray
+### 4️⃣ Email Reports (Optional)
+
+1. Go to **Settings** → **Email Push**
+2. Enter your QQ email address and authorization code
+3. Click **Save Config**
+4. Click **Test Send** to verify
+
+> 💡 Get auth code: QQ Mail → Settings → Account → POP3/SMTP Service → Generate Authorization Code
+
+**Email Content**:
+- 📊 Daily time statistics (total duration, efficiency score)
+- 📈 Time distribution by category
+- 💬 AI-generated personalized feedback and suggestions
+
+### 5️⃣ System Tray
 
 - Close window → Minimizes to tray, keeps running
 - Double-click tray icon → Open main window
@@ -191,7 +207,8 @@ Dayflow/
 │   ├── types.py            # Data models
 │   ├── recorder.py         # Screen capture (dxcam)
 │   ├── llm_provider.py     # AI API integration
-│   └── analysis.py         # Analysis scheduler
+│   ├── analysis.py         # Analysis scheduler
+│   └── email_service.py    # Email report service
 │
 ├── 💾 database/            # Data layer
 │   ├── schema.sql          # Table definitions
@@ -252,7 +269,7 @@ Dayflow takes user privacy seriously with multiple layers of protection:
 |-----------|----------|-------------|
 | Video Chunks | Local `%LOCALAPPDATA%\Dayflow\chunks\` | Temporary storage only |
 | Analysis Results | Local `dayflow.db` | SQLite database |
-| User Settings | Local database | Including API Key |
+| User Settings | Local database | API Key, email config, etc. |
 
 ### Privacy Protection Measures
 

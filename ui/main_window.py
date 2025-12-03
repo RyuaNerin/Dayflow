@@ -1565,6 +1565,10 @@ class MainWindow(QMainWindow):
         # 停止分析
         self._stop_analysis()
         
+        # 关闭数据库连接，确保数据写入
+        if self.storage:
+            self.storage.close()
+        
         QApplication.quit()
     
     def closeEvent(self, event):

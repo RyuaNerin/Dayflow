@@ -58,7 +58,8 @@ class EmailService:
             
             # 发送邮件
             logger.info(f"正在连接 SMTP 服务器: {self.config.smtp_server}:{self.config.smtp_port}")
-            with smtplib.SMTP_SSL(self.config.smtp_server, self.config.smtp_port, timeout=30) as server:
+            server = smtplib.SMTP_SSL(self.config.smtp_server, self.config.smtp_port, timeout=30)
+            try:
                 logger.info("SMTP 连接成功，正在登录...")
                 server.login(self.config.sender_email, self.config.auth_code)
                 logger.info("登录成功，正在发送邮件...")
@@ -67,9 +68,15 @@ class EmailService:
                     self.config.receiver_email,
                     msg.as_string()
                 )
-            
-            logger.info(f"邮件发送成功: {subject}")
-            return True, ""
+                # sendmail 成功 = 邮件已发送
+                logger.info(f"邮件发送成功: {subject}")
+                return True, ""
+            finally:
+                # 忽略 quit() 时的错误（QQ 邮箱可能返回非标准响应）
+                try:
+                    server.quit()
+                except Exception:
+                    pass
             
         except smtplib.SMTPAuthenticationError as e:
             error_msg = "授权码错误或SMTP服务未开启"
@@ -111,10 +118,18 @@ class AICommentGenerator:
 6. 不要使用"您"，用"你"
 7. 直接输出点评内容，不要加标题或前缀"""
 
-    def __init__(self):
+    def __init__(self, storage=None):
+        self.storage = storage
         self.api_base_url = config.API_BASE_URL.rstrip("/")
-        self.api_key = config.API_KEY
         self.model = config.API_MODEL
+    
+    def _get_api_key(self) -> str:
+        """获取 API Key（优先从数据库读取）"""
+        if self.storage:
+            db_key = self.storage.get_setting("api_key", "")
+            if db_key:
+                return db_key
+        return config.API_KEY
     
     def generate_comment(self, stats: dict) -> str:
         """
@@ -132,7 +147,8 @@ class AICommentGenerator:
             str: AI 生成的点评文本
         """
         # 如果没有 API Key，使用模板
-        if not self.api_key:
+        api_key = self._get_api_key()
+        if not api_key:
             return self._fallback_comment(stats)
         
         try:
@@ -162,21 +178,21 @@ class AICommentGenerator:
             )
             
             # 调用 API（同步方式）
-            comment = self._call_api_sync(prompt)
+            comment = self._call_api_sync(prompt, api_key)
             return comment if comment else self._fallback_comment(stats)
             
         except Exception as e:
             logger.error(f"AI 点评生成失败: {e}")
             return self._fallback_comment(stats)
     
-    def _call_api_sync(self, prompt: str) -> Optional[str]:
+    def _call_api_sync(self, prompt: str, api_key: str) -> Optional[str]:
         """同步调用 API"""
         try:
             with httpx.Client(timeout=15.0) as client:
                 response = client.post(
                     f"{self.api_base_url}/chat/completions",
                     headers={
-                        "Authorization": f"Bearer {self.api_key}",
+                        "Authorization": f"Bearer {api_key}",
                         "Content-Type": "application/json"
                     },
                     json={
@@ -190,9 +206,16 @@ class AICommentGenerator:
                 )
                 response.raise_for_status()
                 result = response.json()
-                return result["choices"][0]["message"]["content"].strip()
+                content = result.get("choices", [{}])[0].get("message", {}).get("content", "")
+                return content.strip() if content else None
+        except httpx.HTTPStatusError as e:
+            logger.warning(f"API HTTP 错误: {e.response.status_code}")
+            return None
+        except httpx.RequestError as e:
+            logger.warning(f"API 请求错误: {e}")
+            return None
         except Exception as e:
-            logger.error(f"API 调用失败: {e}")
+            logger.warning(f"API 调用失败: {type(e).__name__}: {e}")
             return None
     
     def _fallback_comment(self, stats: dict) -> str:
@@ -233,7 +256,7 @@ class ReportGenerator:
     
     def __init__(self, storage):
         self.storage = storage
-        self.ai_generator = AICommentGenerator()
+        self.ai_generator = AICommentGenerator(storage)
     
     def generate_daily_report(self, date: datetime = None) -> str:
         """生成每日报告 HTML"""
@@ -265,14 +288,18 @@ class ReportGenerator:
                 score_count += 1
         avg_score = int(total_score / score_count) if score_count > 0 else 0
         
-        # 生成 AI 点评
-        ai_stats = {
-            'date': date.strftime("%Y年%m月%d日"),
-            'recorded_minutes': int(total_minutes),
-            'score': avg_score,
-            'categories': [(cat, int(mins)) for cat, mins in sorted_stats]
-        }
-        ai_comment = self.ai_generator.generate_comment(ai_stats)
+        # 生成 AI 点评（失败时使用默认文案，不影响邮件发送）
+        try:
+            ai_stats = {
+                'date': date.strftime("%Y年%m月%d日"),
+                'recorded_minutes': int(total_minutes),
+                'score': avg_score,
+                'categories': [(cat, int(mins)) for cat, mins in sorted_stats]
+            }
+            ai_comment = self.ai_generator.generate_comment(ai_stats)
+        except Exception as e:
+            logger.warning(f"AI 点评生成失败，使用默认文案: {e}")
+            ai_comment = "今天辛苦了，继续加油！💪"
         
         # 生成 HTML
         return self._build_html(date, sorted_stats, total_minutes, avg_score, ai_comment)

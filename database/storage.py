@@ -3,6 +3,7 @@ Dayflow Windows - 数据库管理
 """
 import sqlite3
 import json
+import logging
 import threading
 from pathlib import Path
 from datetime import datetime
@@ -16,6 +17,8 @@ from core.types import (
     ActivityCard, AppSite, Distraction
 )
 
+logger = logging.getLogger(__name__)
+
 
 class StorageManager:
     """SQLite 数据库管理器 - 带连接缓存"""
@@ -23,6 +26,7 @@ class StorageManager:
     def __init__(self, db_path: Optional[Path] = None):
         self.db_path = db_path or config.DATABASE_PATH
         self._local = threading.local()  # 线程本地存储
+        logger.info(f"数据库路径: {self.db_path}")
         self._init_database()
     
     def _init_database(self):
@@ -41,9 +45,9 @@ class StorageManager:
                 timeout=30.0
             )
             self._local.conn.row_factory = sqlite3.Row
-            # 启用 WAL 模式提升并发性能
+            # 使用 WAL 模式，但确保数据立即写入
             self._local.conn.execute("PRAGMA journal_mode=WAL")
-            self._local.conn.execute("PRAGMA synchronous=NORMAL")
+            self._local.conn.execute("PRAGMA synchronous=FULL")  # 改为 FULL 确保数据写入
         return self._local.conn
     
     @contextmanager
@@ -56,6 +60,19 @@ class StorageManager:
         except Exception:
             conn.rollback()
             raise
+    
+    def close(self):
+        """关闭数据库连接"""
+        if hasattr(self._local, 'conn') and self._local.conn is not None:
+            try:
+                # 最终 checkpoint 确保所有数据写入主数据库文件
+                self._local.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+                self._local.conn.close()
+                logger.info("数据库连接已关闭")
+            except Exception as e:
+                logger.error(f"关闭数据库连接失败: {e}")
+            finally:
+                self._local.conn = None
     
     # ==================== Chunks ====================
     
@@ -260,17 +277,27 @@ class StorageManager:
     # ==================== Settings ====================
     
     def get_setting(self, key: str, default: str = "") -> str:
-        """获取设置值"""
-        with self._get_connection() as conn:
+        """获取设置值 - 使用独立连接确保读取最新数据"""
+        try:
+            conn = sqlite3.connect(str(self.db_path), timeout=10.0)
+            conn.row_factory = sqlite3.Row
             cursor = conn.execute(
                 "SELECT value FROM settings WHERE key = ?", (key,)
             )
             row = cursor.fetchone()
-            return row["value"] if row else default
+            conn.close()
+            value = row["value"] if row else default
+            logger.debug(f"读取设置 {key}: {'已找到' if row else '使用默认值'}")
+            return value
+        except Exception as e:
+            logger.error(f"读取设置失败 {key}: {e}")
+            return default
     
     def set_setting(self, key: str, value: str):
-        """设置值"""
-        with self._get_connection() as conn:
+        """设置值 - 使用独立连接确保立即写入"""
+        try:
+            conn = sqlite3.connect(str(self.db_path), timeout=10.0)
+            conn.execute("PRAGMA synchronous=FULL")
             conn.execute(
                 """
                 INSERT INTO settings (key, value, updated_at) 
@@ -279,5 +306,10 @@ class StorageManager:
                 """,
                 (key, value, value)
             )
-            # 确保 WAL 模式下数据刷盘
-            conn.execute("PRAGMA wal_checkpoint(PASSIVE)")
+            conn.commit()
+            # 强制 checkpoint 确保 WAL 数据写入主文件
+            conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+            conn.close()
+            logger.info(f"已保存设置 {key}")
+        except Exception as e:
+            logger.error(f"保存设置失败 {key}: {e}")
