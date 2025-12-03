@@ -449,15 +449,17 @@ class EmailScheduler:
         now = datetime.now()
         today = now.date()
         
-        # 中午 12:00
-        if now.hour == 12 and now.minute == 0:
+        # 中午 12:00-12:10 时间窗口（10分钟容错）
+        if now.hour == 12 and now.minute < 10:
             if self._last_noon_send is None or self._last_noon_send.date() != today:
+                logger.info("触发午间邮件发送")
                 self._send_report("noon")
                 self._last_noon_send = now
         
-        # 晚上 22:00
-        if now.hour == 22 and now.minute == 0:
+        # 晚上 22:00-22:10 时间窗口（10分钟容错）
+        if now.hour == 22 and now.minute < 10:
             if self._last_night_send is None or self._last_night_send.date() != today:
+                logger.info("触发晚间邮件发送")
                 self._send_report("night")
                 self._last_night_send = now
     
