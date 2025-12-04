@@ -239,14 +239,17 @@ python build.py
 
 ## 📖 使用指南
 
-### 1️⃣ 配置 API Key
+### 1️⃣ 配置 API
 
 1. 打开应用，点击左侧 **⚙️ 设置**
-2. 输入你的心流 API Key
+2. 配置 API 信息：
+   - **API 地址**：OpenAI 兼容接口地址
+   - **API Key**：你的 API 密钥
+   - **模型名称**：需支持视觉的模型
 3. 点击 **测试连接** 验证
-4. 点击 **保存**
+4. 点击 **保存配置**
 
-> 💡 API 地址：`https://apis.iflow.cn/v1`
+> 💡 支持任意 OpenAI 兼容接口：心流API、OpenAI、DeepSeek、本地模型（Ollama）等
 
 ### 2️⃣ 开始录制
 

@@ -349,36 +349,58 @@ class SettingsPanel(QWidget):
         self.page_title.setMinimumHeight(40)
         layout.addWidget(self.page_title)
         
-        # === API Key 设置 ===
+        # === API 设置 ===
         api_frame, api_layout = self._create_card(layout)
-        self._create_title("🔑 API Key", api_layout)
+        self._create_title("🔑 API 设置", api_layout)
         
-        api_desc = QLabel("请输入您的心流 API Key 以启用云端分析功能")
+        api_desc = QLabel("支持 OpenAI 兼容接口（心流API、OpenAI、DeepSeek、本地模型等）")
         api_desc.setObjectName("cardDesc")
         api_desc.setWordWrap(True)
         self._descs.append(api_desc)
         api_layout.addWidget(api_desc)
         
-        api_url = QLabel("API 地址: https://apis.iflow.cn/v1")
-        api_url.setObjectName("cardDesc")
-        self._descs.append(api_url)
-        api_layout.addWidget(api_url)
+        # API URL 输入框
+        api_url_label = QLabel("API 地址")
+        api_url_label.setObjectName("cardDesc")
+        self._descs.append(api_url_label)
+        api_layout.addWidget(api_url_label)
+        
+        self.api_url_input = QLineEdit()
+        self.api_url_input.setPlaceholderText("https://api.openai.com/v1")
+        self.api_url_input.setMinimumHeight(40)
+        api_layout.addWidget(self.api_url_input)
         
         # API Key 输入框
+        api_key_label = QLabel("API Key")
+        api_key_label.setObjectName("cardDesc")
+        self._descs.append(api_key_label)
+        api_layout.addWidget(api_key_label)
+        
         self.api_key_input = QLineEdit()
-        self.api_key_input.setPlaceholderText("输入 API Key...")
+        self.api_key_input.setPlaceholderText("sk-...")
         self.api_key_input.setEchoMode(QLineEdit.Password)
-        self.api_key_input.setMinimumHeight(44)
+        self.api_key_input.setMinimumHeight(40)
         api_layout.addWidget(self.api_key_input)
+        
+        # 模型名称输入框
+        model_label = QLabel("模型名称（需支持视觉）")
+        model_label.setObjectName("cardDesc")
+        self._descs.append(model_label)
+        api_layout.addWidget(model_label)
+        
+        self.api_model_input = QLineEdit()
+        self.api_model_input.setPlaceholderText("gpt-4o / qwen-vl-plus / deepseek-chat")
+        self.api_model_input.setMinimumHeight(40)
+        api_layout.addWidget(self.api_model_input)
         
         # 按钮行
         key_row = QHBoxLayout()
         key_row.setSpacing(10)
         
-        self.save_btn = QPushButton("保存")
+        self.save_btn = QPushButton("保存配置")
         self.save_btn.setCursor(Qt.PointingHandCursor)
-        self.save_btn.setFixedSize(80, 40)
-        self.save_btn.clicked.connect(self._save_api_key)
+        self.save_btn.setFixedSize(100, 40)
+        self.save_btn.clicked.connect(self._save_api_config)
         key_row.addWidget(self.save_btn)
         
         self.test_btn = QPushButton("测试连接")
@@ -766,8 +788,8 @@ class SettingsPanel(QWidget):
                 padding: 2px 0;
             """)
         
-        # API Key 输入框
-        self.api_key_input.setStyleSheet(f"""
+        # API 输入框样式
+        api_input_style = f"""
             QLineEdit {{
                 background-color: {t.bg_tertiary};
                 border: 1px solid {t.border};
@@ -780,7 +802,10 @@ class SettingsPanel(QWidget):
             QLineEdit:focus {{
                 border-color: {t.accent};
             }}
-        """)
+        """
+        self.api_url_input.setStyleSheet(api_input_style)
+        self.api_key_input.setStyleSheet(api_input_style)
+        self.api_model_input.setStyleSheet(api_input_style)
         
         # 主要按钮（保存）
         self.save_btn.setStyleSheet(f"""
@@ -942,9 +967,14 @@ class SettingsPanel(QWidget):
         """)
     
     def _load_settings(self):
+        # 加载 API 设置
+        api_url = self.storage.get_setting("api_url", config.API_BASE_URL)
         api_key = self.storage.get_setting("api_key", "")
-        if api_key:
-            self.api_key_input.setText(api_key)
+        api_model = self.storage.get_setting("api_model", config.API_MODEL)
+        
+        self.api_url_input.setText(api_url)
+        self.api_key_input.setText(api_key)
+        self.api_model_input.setText(api_model)
         
         # 加载主题设置
         theme = self.storage.get_setting("theme", "dark")
@@ -958,19 +988,33 @@ class SettingsPanel(QWidget):
         self.email_enable_btn.setChecked(email_enabled)
         self._update_email_button()
     
-    def _save_api_key(self):
+    def _save_api_config(self):
+        """保存 API 配置"""
+        api_url = self.api_url_input.text().strip() or config.API_BASE_URL
         api_key = self.api_key_input.text().strip()
+        api_model = self.api_model_input.text().strip() or config.API_MODEL
+        
+        self.storage.set_setting("api_url", api_url)
         self.storage.set_setting("api_key", api_key)
+        self.storage.set_setting("api_model", api_model)
+        
+        # 更新运行时配置
+        config.API_BASE_URL = api_url
         config.API_KEY = api_key
+        config.API_MODEL = api_model
+        
         self.api_key_saved.emit(api_key)
-        QMessageBox.information(self, "成功", "API Key 已保存")
+        QMessageBox.information(self, "成功", "API 配置已保存")
     
     def _test_connection(self):
         """测试 API 连接"""
         import asyncio
         from core.llm_provider import DayflowBackendProvider
         
+        api_url = self.api_url_input.text().strip() or config.API_BASE_URL
         api_key = self.api_key_input.text().strip()
+        api_model = self.api_model_input.text().strip() or config.API_MODEL
+        
         if not api_key:
             self._show_test_result(False, "请先输入 API Key")
             return
@@ -985,7 +1029,11 @@ class SettingsPanel(QWidget):
         # 在后台线程执行测试
         import threading
         def run_test():
-            provider = DayflowBackendProvider(api_key=api_key)
+            provider = DayflowBackendProvider(
+                api_base_url=api_url,
+                api_key=api_key,
+                model=api_model
+            )
             loop = asyncio.new_event_loop()
             try:
                 success, message = loop.run_until_complete(provider.test_connection())
@@ -1816,10 +1864,17 @@ class MainWindow(QMainWindow):
     
     def _load_data(self):
         """加载数据"""
-        # 加载 API Key
+        # 加载 API 配置
+        api_url = self.storage.get_setting("api_url", "")
         api_key = self.storage.get_setting("api_key", "")
+        api_model = self.storage.get_setting("api_model", "")
+        
+        if api_url:
+            config.API_BASE_URL = api_url
         if api_key:
             config.API_KEY = api_key
+        if api_model:
+            config.API_MODEL = api_model
         
         # 加载今日时间轴
         self._refresh_timeline()

@@ -239,14 +239,17 @@ After building, the `dist/Dayflow/` folder can be copied and shared directly.
 
 ## 📖 User Guide
 
-### 1️⃣ Configure API Key
+### 1️⃣ Configure API
 
 1. Open the app, click **⚙️ Settings** on the left sidebar
-2. Enter your API Key
+2. Configure API settings:
+   - **API URL**: OpenAI-compatible endpoint
+   - **API Key**: Your API key
+   - **Model**: Vision-capable model name
 3. Click **Test Connection** to verify
-4. Click **Save**
+4. Click **Save Config**
 
-> 💡 API Endpoint: `https://apis.iflow.cn/v1`
+> 💡 Supports any OpenAI-compatible API: OpenAI, DeepSeek, Ollama (local), etc.
 
 ### 2️⃣ Start Recording
 
