@@ -1,0 +1,110 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Dayflow 1.0\n"
+"Last-Translator: \n"
+"Language: ko_KR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+# 카테고리 관련
+msgid "工作"
+msgstr "작업"
+
+msgid "学习"
+msgstr "학습"
+
+msgid "编程"
+msgstr "코딩"
+
+msgid "会议"
+msgstr "회의"
+
+msgid "娱乐"
+msgstr "엔터테인먼트"
+
+msgid "社交"
+msgstr "소셜"
+
+msgid "休息"
+msgstr "휴식"
+
+msgid "其他"
+msgstr "기타"
+
+# StatsSummaryWidget
+msgid "📊 时间分布"
+msgstr "📊 시간 분포"
+
+msgid "展开"
+msgstr "펼치기"
+
+msgid "折叠"
+msgstr "접기"
+
+msgid "共 {hours}h {mins}m"
+msgstr "총 {hours}시간 {mins}분"
+
+msgid "暂无数据"
+msgstr "데이터 없음"
+
+# ActivityCardWidget
+msgid "活动"
+msgstr "활동"
+
+msgid "未命名活动"
+msgstr "이름 없는 활동"
+
+# TimelineHeader
+msgid "今天"
+msgstr "오늘"
+
+msgid "昨天"
+msgstr "어제"
+
+msgid "{month}月{day}日"
+msgstr "{month}월 {day}일"
+
+msgid "周一"
+msgstr "월요일"
+
+msgid "周二"
+msgstr "화요일"
+
+msgid "周三"
+msgstr "수요일"
+
+msgid "周四"
+msgstr "목요일"
+
+msgid "周五"
+msgstr "금요일"
+
+msgid "周六"
+msgstr "토요일"
+
+msgid "周日"
+msgstr "일요일"
+
+msgid "{}，{}"
+msgstr "{}, {}"
+
+msgid "{card_count} 个活动 · {total_hours:.1f} 小时"
+msgstr "{card_count}개 활동 · {total_hours:.1f}시간"
+
+msgid "暂无记录"
+msgstr "기록 없음"
+
+msgid "📥 导出"
+msgstr "📥 내보내기"
+
+# TimelineView
+msgid "🔍 搜索活动标题或摘要..."
+msgstr "🔍 활동 제목 또는 요약 검색..."
+
+msgid "开始录制以生成时间轴"
+msgstr "타임라인 생성을 위해 기록을 시작하세요"
+
+msgid "未找到匹配的活动"
+msgstr "일치하는 활동을 찾을 수 없습니다"

@@ -1,0 +1,175 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Dayflow 1.0\n"
+"Last-Translator: \n"
+"Language: ko_KR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: backend_provider.py
+#. System prompt for screen activity transcription
+msgid ""
+"你是一个屏幕活动分析助手。分析用户提供的屏幕截图序列，识别用户正在进行的活动。\n"
+"\n"
+"请以 JSON 格式返回观察记录列表，格式如下：\n"
+"{\n"
+"  \"observations\": [\n"
+"    {\n"
+"      \"start_ts\": 0,\n"
+"      \"end_ts\": 10,\n"
+"      \"text\": \"用户正在使用 VS Code 编写 Python 代码\",\n"
+"      \"app_name\": \"Visual Studio Code\",\n"
+"      \"window_title\": \"main.py - Dayflow\"\n"
+"    }\n"
+"  ]\n"
+"}\n"
+"\n"
+"注意：\n"
+"- start_ts 和 end_ts 是相对于视频开始的秒数\n"
+"- 识别出具体的应用程序名称和窗口标题\n"
+"- 描述用户的具体操作行为\n"
+"- 只返回 JSON，不要其他内容"
+msgstr ""
+"당신은 화면 활동 분석 어시스턴트입니다. 사용자가 제공한 스크린샷 시퀀스를 분석하여 사용자가 수행 중인 활동을 식별하세요.\n"
+"\n"
+"다음 형식의 JSON으로 관찰 기록 목록을 반환하세요:\n"
+"{\n"
+"  \"observations\": [\n"
+"    {\n"
+"      \"start_ts\": 0,\n"
+"      \"end_ts\": 10,\n"
+"      \"text\": \"사용자가 VS Code에서 Python 코드를 작성 중입니다\",\n"
+"      \"app_name\": \"Visual Studio Code\",\n"
+"      \"window_title\": \"main.py - Dayflow\"\n"
+"    }\n"
+"  ]\n"
+"}\n"
+"\n"
+"주의사항:\n"
+"- start_ts와 end_ts는 영상 시작 기준 초 단위입니다\n"
+"- 구체적인 애플리케이션 이름과 창 제목을 식별하세요\n"
+"- 사용자의 구체적인 작업 행동을 설명하세요\n"
+"- JSON만 반환하고 다른 내용은 포함하지 마세요"
+
+#: backend_provider.py
+#. System prompt for generating activity cards
+msgid ""
+"你是一个时间管理助手。根据屏幕活动观察记录，生成时间轴活动卡片。\n"
+"\n"
+"请以 JSON 格式返回活动卡片列表，格式如下：\n"
+"{\n"
+"  \"cards\": [\n"
+"    {\n"
+"      \"category\": \"工作\",\n"
+"      \"title\": \"Python 开发\",\n"
+"      \"summary\": \"使用 VS Code 进行 Dayflow 项目的 Python 开发工作\",\n"
+"      \"start_time\": \"2024-01-01T10:00:00\",\n"
+"      \"end_time\": \"2024-01-01T11:30:00\",\n"
+"      \"app_sites\": [\n"
+"        {\"name\": \"VS Code\", \"duration_seconds\": 5400}\n"
+"      ],\n"
+"      \"distractions\": [],\n"
+"      \"productivity_score\": 85\n"
+"    }\n"
+"  ]\n"
+"}\n"
+"\n"
+"类别包括：工作、学习、编程、会议、娱乐、社交、休息、其他\n"
+"productivity_score 范围 0-100，代表生产力水平\n"
+"只返回 JSON，不要其他内容"
+msgstr ""
+"당신은 시간 관리 어시스턴트입니다. 화면 활동 관찰 기록을 기반으로 타임라인 활동 카드를 생성하세요.\n"
+"\n"
+"다음 형식의 JSON으로 활동 카드 목록을 반환하세요:\n"
+"{\n"
+"  \"cards\": [\n"
+"    {\n"
+"      \"category\": \"업무\",\n"
+"      \"title\": \"Python 개발\",\n"
+"      \"summary\": \"VS Code를 사용하여 Dayflow 프로젝트 Python 개발 작업 수행\",\n"
+"      \"start_time\": \"2024-01-01T10:00:00\",\n"
+"      \"end_time\": \"2024-01-01T11:30:00\",\n"
+"      \"app_sites\": [\n"
+"        {\"name\": \"VS Code\", \"duration_seconds\": 5400}\n"
+"      ],\n"
+"      \"distractions\": [],\n"
+"      \"productivity_score\": 85\n"
+"    }\n"
+"  ]\n"
+"}\n"
+"\n"
+"카테고리: 업무, 학습, 프로그래밍, 회의, 엔터테인먼트, 소셜, 휴식, 기타\n"
+"productivity_score 범위는 0-100이며 생산성 수준을 나타냅니다\n"
+"JSON만 반환하고 다른 내용은 포함하지 마세요"
+
+#: backend_provider.py:transcribe_video
+#. Message for video frame analysis request
+msgid "以下是一段 {duration:.0f} 秒屏幕录制的 {frames} 个关键帧，请分析用户的活动。{prompt}"
+msgstr "{duration:.0f}초 화면 녹화의 {frames}개 키프레임입니다. 사용자의 활동을 분석해주세요.{prompt}"
+
+#: backend_provider.py:generate_activity_cards
+#. Label for observation records section
+msgid "观察记录："
+msgstr "관찰 기록:"
+
+#: backend_provider.py:generate_activity_cards
+#. Label for application name
+msgid "应用:"
+msgstr "앱:"
+
+#: backend_provider.py:generate_activity_cards
+#. Label for recording start time
+msgid "录制开始时间:"
+msgstr "녹화 시작 시간:"
+
+#: backend_provider.py:generate_activity_cards
+#. Label for previous activity cards section
+msgid "前序活动卡片："
+msgstr "이전 활동 카드:"
+
+#: backend_provider.py:_parse_cards_from_text
+#. Default category name
+msgid "其他"
+msgstr "기타"
+
+#: backend_provider.py:_parse_cards_from_text
+#. Default activity title
+msgid "未命名活动"
+msgstr "이름 없는 활동"
+
+#: backend_provider.py:test_connection
+#. Error message when API key is not configured
+msgid "API Key 未配置"
+msgstr "API Key가 설정되지 않았습니다"
+
+#: backend_provider.py:test_connection
+#. Test message for API connection
+msgid "你好，请回复'测试成功'"
+msgstr "안녕하세요, '테스트 성공'이라고 답해주세요"
+
+#: backend_provider.py:test_connection
+#. Success message for API connection test
+msgid "连接成功！模型: {model}\n回复: {response}"
+msgstr "연결 성공! 모델: {model}\n응답: {response}"
+
+#: backend_provider.py:test_connection
+#. HTTP error message
+msgid "HTTP 错误 {status_code}: {text}"
+msgstr "HTTP 오류 {status_code}: {text}"
+
+#: backend_provider.py:test_connection
+#. Connection failure message
+msgid "连接失败：无法连接到服务器"
+msgstr "연결 실패: 서버에 연결할 수 없습니다"
+
+#: backend_provider.py:test_connection
+#. Connection timeout message
+msgid "连接超时"
+msgstr "연결 시간 초과"
+
+#: backend_provider.py:test_connection
+#. Generic error message
+msgid "错误: {e}"
+msgstr "오류: {e}"

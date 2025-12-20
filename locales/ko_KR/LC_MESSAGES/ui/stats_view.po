@@ -1,0 +1,94 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Dayflow 1.0\n"
+"Last-Translator: \n"
+"Language: ko_KR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+# Category names
+msgid "工作"
+msgstr "업무"
+
+msgid "编程"
+msgstr "프로그래밍"
+
+msgid "学习"
+msgstr "학습"
+
+msgid "会议"
+msgstr "회의"
+
+msgid "娱乐"
+msgstr "오락"
+
+msgid "社交"
+msgstr "소셜"
+
+msgid "休息"
+msgstr "휴식"
+
+msgid "其他"
+msgstr "기타"
+
+# BarChartWidget messages
+msgid "暂无数据"
+msgstr "데이터 없음"
+
+# LineChartWidget messages
+msgid "数据不足，需要至少2天记录"
+msgstr "데이터 부족, 최소 2일 기록 필요"
+
+# GoalWidget messages
+msgid "每日目标:"
+msgstr "일일 목표:"
+
+msgid " 小时"
+msgstr " 시간"
+
+msgid "今日进度: 0h / 8h"
+msgstr "오늘 진행: 0시간 / 8시간"
+
+#, python-brace-format
+msgid "今日进度: {:.1f}h / {}h"
+msgstr "오늘 진행: {:.1f}시간 / {}시간"
+
+msgid "🎉 目标已达成！"
+msgstr "🎉 목표 달성!"
+
+msgid "💪 加油，快完成了！"
+msgstr "💪 화이팅, 거의 다 왔어요!"
+
+msgid "⏰ 已完成一半"
+msgstr "⏰ 절반 완료"
+
+msgid "📝 继续努力"
+msgstr "📝 계속 노력하세요"
+
+# DateCompareWidget messages
+msgid "对比日期:"
+msgstr "날짜 비교:"
+
+# StatsPanel messages
+msgid "📊 数据统计"
+msgstr "📊 데이터 통계"
+
+msgid "本周"
+msgstr "이번 주"
+
+msgid "本月"
+msgstr "이번 달"
+
+msgid "时间分布"
+msgstr "시간 분포"
+
+msgid "生产力趋势"
+msgstr "생산성 추세"
+
+msgid "今日目标"
+msgstr "오늘의 목표"
+
+msgid "日期对比"
+msgstr "날짜 비교"

@@ -1,0 +1,33 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Dayflow 1.0\n"
+"Last-Translator: \n"
+"Language: ko_KR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "开发模式下无法启用自启动，请使用打包后的 EXE"
+msgstr "개발 모드에서는 자동 시작을 활성화할 수 없습니다. 패키징된 EXE를 사용하세요"
+
+msgid "开机自启动已启用"
+msgstr "시작 프로그램이 활성화되었습니다"
+
+msgid "权限不足，请以管理员身份运行"
+msgstr "권한이 부족합니다. 관리자 권한으로 실행하세요"
+
+msgid "启用失败: {}"
+msgstr "활성화 실패: {}"
+
+msgid "开机自启动已禁用"
+msgstr "시작 프로그램이 비활성화되었습니다"
+
+msgid "权限不足，请以管理员身份运行"
+msgstr "권한이 부족합니다. 관리자 권한으로 실행하세요"
+
+msgid "禁用失败: {}"
+msgstr "비활성화 실패: {}"
+
+msgid "自启动未启用"
+msgstr "자동 시작이 활성화되어 있지 않습니다"
