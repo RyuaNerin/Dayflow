@@ -16,6 +16,7 @@ from PySide6.QtGui import QPainter, QColor, QPen, QBrush, QFont, QPainterPath
 from ui.themes import get_theme, get_theme_manager
 from database.storage import StorageManager
 from core.types import ActivityCard
+from i18n import _
 
 logger = logging.getLogger(__name__)
 
@@ -107,7 +108,7 @@ class BarChartWidget(QWidget):
             # 无数据提示
             painter.setPen(QPen(QColor(t.text_muted)))
             painter.setFont(QFont("Microsoft YaHei", 11))
-            painter.drawText(self.rect(), Qt.AlignCenter, "暂无数据")
+            painter.drawText(self.rect(), Qt.AlignCenter, _("暂无数据"))
             painter.end()
             return
         
@@ -134,7 +135,7 @@ class BarChartWidget(QWidget):
                 if bar_height < 1:
                     continue
                 
-                color = QColor(CATEGORY_COLORS.get(cat, "#94A3B8"))
+                color = QColor(CATEGORY_COLORS.get(_(cat), "#94A3B8"))
                 painter.setBrush(QBrush(color))
                 painter.setPen(Qt.NoPen)
                 
@@ -212,7 +213,7 @@ class LineChartWidget(QWidget):
             # 数据不足，显示提示
             painter.setPen(QPen(QColor(t.text_muted)))
             painter.setFont(QFont("Microsoft YaHei", 11))
-            painter.drawText(self.rect(), Qt.AlignCenter, "数据不足，需要至少2天记录")
+            painter.drawText(self.rect(), Qt.AlignCenter, _("数据不足，需要至少2天记录"))
             painter.end()
             return
         
@@ -285,15 +286,15 @@ class GoalWidget(QWidget):
         # 目标设置行
         goal_row = QHBoxLayout()
         goal_row.setSpacing(10)
-        
-        goal_label = QLabel("每日目标:")
+
+        goal_label = QLabel(_("每日目标:"))
         goal_label.setStyleSheet("font-size: 13px;")
         goal_row.addWidget(goal_label)
-        
+
         self.goal_spin = QSpinBox()
         self.goal_spin.setRange(1, 16)
         self.goal_spin.setValue(8)
-        self.goal_spin.setSuffix(" 小时")
+        self.goal_spin.setSuffix(_(" 小时"))
         self.goal_spin.setFixedWidth(100)
         self.goal_spin.valueChanged.connect(self._on_goal_changed)
         goal_row.addWidget(self.goal_spin)
@@ -302,7 +303,7 @@ class GoalWidget(QWidget):
         layout.addLayout(goal_row)
         
         # 进度显示
-        self.progress_label = QLabel("今日进度: 0h / 8h")
+        self.progress_label = QLabel(_("今日进度: 0h / 8h"))
         self.progress_label.setStyleSheet("font-size: 14px; font-weight: bold;")
         layout.addWidget(self.progress_label)
         
@@ -339,29 +340,29 @@ class GoalWidget(QWidget):
     def _update_display(self):
         """更新显示"""
         t = get_theme()
-        
+
         # 进度文字
         self.progress_label.setText(
-            f"今日进度: {self._current_hours:.1f}h / {self._goal_hours}h"
+            _("今日进度: {:.1f}h / {}h").format(self._current_hours, self._goal_hours)
         )
-        
+
         # 进度条
         percent = min(100, (self._current_hours / self._goal_hours) * 100) if self._goal_hours > 0 else 0
         self.progress_bar.setValue(int(percent))
-        
+
         # 颜色
         if percent >= 100:
             color = "#10B981"  # 绿色 - 完成
-            status = "🎉 目标已达成！"
+            status = _("🎉 目标已达成！")
         elif percent >= 75:
             color = "#3B82F6"  # 蓝色 - 接近
-            status = "💪 加油，快完成了！"
+            status = _("💪 加油，快完成了！")
         elif percent >= 50:
             color = "#F59E0B"  # 黄色 - 一半
-            status = "⏰ 已完成一半"
+            status = _("⏰ 已完成一半")
         else:
             color = "#6B7280"  # 灰色 - 刚开始
-            status = "📝 继续努力"
+            status = _("📝 继续努力")
         
         self.progress_bar.setStyleSheet(f"""
             QProgressBar {{
@@ -406,7 +407,7 @@ class CategoryLegend(QWidget):
         layout.setSpacing(8)
         layout.setHorizontalSpacing(20)
         
-        categories = list(CATEGORY_COLORS.items())
+        categories = list({_(k):v for k, v in CATEGORY_COLORS}.items())
         cols = 4  # 每行 4 个
         
         for idx, (cat, color) in enumerate(categories):
@@ -451,14 +452,14 @@ class DateCompareWidget(QWidget):
         # 日期选择行
         date_row = QHBoxLayout()
         date_row.setSpacing(10)
-        
-        date_row.addWidget(QLabel("对比日期:"))
-        
+
+        date_row.addWidget(QLabel(_("对比日期:")))
+
         self.combo1 = QComboBox()
         self.combo1.setFixedWidth(120)
         self.combo1.currentIndexChanged.connect(self._on_date_changed)
         date_row.addWidget(self.combo1)
-        
+
         date_row.addWidget(QLabel("vs"))
         
         self.combo2 = QComboBox()
@@ -512,13 +513,13 @@ class DateCompareWidget(QWidget):
         try:
             date = datetime.strptime(date_str, "%Y-%m-%d")
             cards = self.storage.get_cards_for_date(date)
-            
+
             stats = {}
             for card in cards:
-                cat = card.category or "其他"
+                cat = card.category or _("其他")
                 minutes = card.duration_minutes
                 stats[cat] = stats.get(cat, 0) + minutes
-            
+
             return stats
         except Exception as e:
             logger.error(f"获取日期统计失败: {e}")
@@ -536,9 +537,9 @@ class DateCompareWidget(QWidget):
         
         # 获取所有类别
         all_cats = set(self._date1_data.keys()) | set(self._date2_data.keys())
-        
+
         if not all_cats:
-            empty = QLabel("暂无数据")
+            empty = QLabel(_("暂无数据"))
             empty.setStyleSheet(f"color: {t.text_muted}; font-size: 13px;")
             self.compare_container.addWidget(empty)
             return
@@ -555,7 +556,7 @@ class DateCompareWidget(QWidget):
             color_box = QLabel()
             color_box.setFixedSize(10, 10)
             color_box.setStyleSheet(
-                f"background-color: {CATEGORY_COLORS.get(cat, '#94A3B8')}; border-radius: 2px;"
+                f"background-color: {CATEGORY_COLORS.get(_(cat), '#94A3B8')}; border-radius: 2px;"
             )
             row.addWidget(color_box)
             
@@ -644,7 +645,7 @@ class StatsPanel(QWidget):
         layout.setSpacing(24)
         
         # ===== 标题 =====
-        title = QLabel("📊 数据统计")
+        title = QLabel(_("📊 数据统计"))
         title.setStyleSheet("font-size: 20px; font-weight: bold;")
         layout.addWidget(title)
         
@@ -652,13 +653,13 @@ class StatsPanel(QWidget):
         range_row = QHBoxLayout()
         range_row.setSpacing(8)
         
-        self.week_btn = QPushButton("本周")
+        self.week_btn = QPushButton(_("本周"))
         self.week_btn.setCheckable(True)
         self.week_btn.setChecked(True)
         self.week_btn.clicked.connect(lambda: self._set_range("week"))
         range_row.addWidget(self.week_btn)
-        
-        self.month_btn = QPushButton("本月")
+
+        self.month_btn = QPushButton(_("本月"))
         self.month_btn.setCheckable(True)
         self.month_btn.clicked.connect(lambda: self._set_range("month"))
         range_row.addWidget(self.month_btn)
@@ -667,35 +668,35 @@ class StatsPanel(QWidget):
         layout.addLayout(range_row)
         
         # ===== 周/月统计图表 =====
-        chart_section = self._create_section("时间分布")
-        
+        chart_section = self._create_section(_("时间分布"))
+
         self.bar_chart = BarChartWidget()
         chart_section.layout().addWidget(self.bar_chart)
-        
+
         self.legend = CategoryLegend()
         chart_section.layout().addWidget(self.legend)
-        
+
         layout.addWidget(chart_section)
-        
+
         # ===== 生产力趋势 =====
-        trend_section = self._create_section("生产力趋势")
-        
+        trend_section = self._create_section(_("生产力趋势"))
+
         self.line_chart = LineChartWidget()
         trend_section.layout().addWidget(self.line_chart)
-        
+
         layout.addWidget(trend_section)
-        
+
         # ===== 今日目标 =====
-        goal_section = self._create_section("今日目标")
-        
+        goal_section = self._create_section(_("今日目标"))
+
         self.goal_widget = GoalWidget()
         self.goal_widget.goal_changed.connect(self._on_goal_changed)
         goal_section.layout().addWidget(self.goal_widget)
-        
+
         layout.addWidget(goal_section)
-        
+
         # ===== 日期对比 =====
-        compare_section = self._create_section("日期对比")
+        compare_section = self._create_section(_("日期对比"))
         
         self.compare_widget = DateCompareWidget(self.storage)
         compare_section.layout().addWidget(self.compare_widget)
@@ -771,7 +772,7 @@ class StatsPanel(QWidget):
                 score_count = 0
                 
                 for card in cards:
-                    cat = card.category or "其他"
+                    cat = card.category or _("其他")
                     minutes = card.duration_minutes
                     categories[cat] = categories.get(cat, 0) + minutes
                     

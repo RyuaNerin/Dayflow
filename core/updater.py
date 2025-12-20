@@ -16,6 +16,7 @@ from dataclasses import dataclass
 import httpx
 
 import config
+from i18n import _
 
 logger = logging.getLogger(__name__)
 
@@ -288,7 +289,7 @@ class UpdateDownloader:
             
             logger.info(f"解压完成，找到 EXE: {new_exe_path}")
         else:
-            raise FileNotFoundError("ZIP 中未找到 Dayflow.exe")
+            raise FileNotFoundError(_("ZIP 中未找到 Dayflow.exe"))
         
         # 清理
         self.target_path.unlink(missing_ok=True)
@@ -329,7 +330,7 @@ class UpdateManager:
         """开始下载更新"""
         if not self.update_info or not self.update_info.has_update:
             if on_complete:
-                on_complete(False, "没有可用更新")
+                on_complete(False, _("没有可用更新"))
             return
         
         self.downloader = UpdateDownloader(

@@ -16,6 +16,7 @@ import cv2
 
 import config
 from core.types import Observation, ActivityCard, AppSite, Distraction
+from i18n import _
 
 logger = logging.getLogger(__name__)
 
@@ -222,7 +223,11 @@ class DayflowBackendProvider:
         content = []
         content.append({
             "type": "text",
-            "text": f"以下是一段 {duration:.0f} 秒屏幕录制的 {len(frames)} 个关键帧，请分析用户的活动。{prompt or ''}"
+            "text": _("以下是一段 {duration:.0f} 秒屏幕录制的 {frames} 个关键帧，请分析用户的活动。{prompt}").format(
+                duration=f'{duration}',
+                len=len(frames),
+                prompt=prompt or '',
+            )
         })
         
         for i, frame_base64 in enumerate(frames):
@@ -235,7 +240,7 @@ class DayflowBackendProvider:
             })
         
         messages = [
-            {"role": "system", "content": TRANSCRIBE_SYSTEM_PROMPT},
+            {"role": "system", "content": _(TRANSCRIBE_SYSTEM_PROMPT)},
             {"role": "user", "content": content}
         ]
         
@@ -269,20 +274,20 @@ class DayflowBackendProvider:
             return []
         
         # 构建观察记录文本
-        obs_text = "观察记录：\n"
+        obs_text = f"{_("观察记录：")}\n"
         for obs in observations:
             obs_text += f"- [{obs.start_ts:.0f}s - {obs.end_ts:.0f}s] {obs.text}"
             if obs.app_name:
-                obs_text += f" (应用: {obs.app_name})"
+                obs_text += f" ({_("应用:")} {obs.app_name})"
             obs_text += "\n"
         
         # 添加时间上下文
         if start_time:
-            obs_text += f"\n录制开始时间: {start_time.isoformat()}"
+            obs_text += f"\n{_("录制开始时间:")} {start_time.isoformat()}"
         
         # 添加前序卡片上下文
         if context_cards:
-            obs_text += "\n\n前序活动卡片：\n"
+            obs_text += f"\n\n{_("前序活动卡片：")}\n"
             for card in context_cards[-3:]:  # 只取最近3个
                 obs_text += f"- {card.category}: {card.title}\n"
         
@@ -290,7 +295,7 @@ class DayflowBackendProvider:
             obs_text += f"\n{prompt}"
         
         messages = [
-            {"role": "system", "content": GENERATE_CARDS_SYSTEM_PROMPT},
+            {"role": "system", "content": _(GENERATE_CARDS_SYSTEM_PROMPT)},
             {"role": "user", "content": obs_text}
         ]
         
@@ -379,8 +384,8 @@ class DayflowBackendProvider:
                         ))
                     
                     card = ActivityCard(
-                        category=item.get("category", "其他"),
-                        title=item.get("title", "未命名活动"),
+                        category=item.get("category", _("其他")),
+                        title=item.get("title", _("未命名活动")),
                         summary=item.get("summary", ""),
                         start_time=card_start,
                         end_time=card_end,
@@ -413,20 +418,20 @@ class DayflowBackendProvider:
             tuple[bool, str]: (是否成功, 消息)
         """
         if not self.api_key:
-            return False, "API Key 未配置"
-        
+            return False, _("API Key 未配置")
+
         try:
-            messages = [{"role": "user", "content": "你好，请回复'测试成功'"}]
+            messages = [{"role": "user", "content": _("你好，请回复'测试成功'")}]
             response = await self._chat_completion(messages)
-            return True, f"连接成功！模型: {self.model}\n回复: {response[:100]}"
+            return True, _("连接成功！模型: {model}\n回复: {response}").format(model=self.model, response=response[:100])
         except httpx.HTTPStatusError as e:
-            return False, f"HTTP 错误 {e.response.status_code}: {e.response.text[:200]}"
+            return False, _("HTTP 错误 {status_code}: {text}").format(status_code=e.response.status_code, text=e.response.text[:200])
         except httpx.ConnectError:
-            return False, "连接失败：无法连接到服务器"
+            return False, _("连接失败：无法连接到服务器")
         except httpx.TimeoutException:
-            return False, "连接超时"
+            return False, _("连接超时")
         except Exception as e:
-            return False, f"错误: {str(e)}"
+            return False, _("错误: {e}").format(e=str(e))
 
 
 # 便捷函数：同步调用

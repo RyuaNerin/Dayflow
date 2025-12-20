@@ -24,6 +24,7 @@ from ui.stats_view import StatsPanel
 from ui.themes import get_theme_manager, get_theme
 from core.types import ActivityCard
 from database.storage import StorageManager
+from i18n import _
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +56,7 @@ class TitleBarButton(QPushButton):
                 border: none;
                 color: {t.text_secondary};
                 font-size: 12px;
-                font-family: "Segoe MDL2 Assets", "Segoe UI Symbol", sans-serif;
+                font-family: {_('"Segoe MDL2 Assets", "Segoe UI Symbol", sans-serif')};
             }}
             QPushButton:hover {{
                 background-color: {hover_bg};
@@ -99,26 +100,26 @@ class CustomTitleBar(QWidget):
         # 右侧：窗口控制按钮
         # 最小化到托盘
         self.tray_btn = TitleBarButton("↓")
-        self.tray_btn.setToolTip("最小化到托盘")
+        self.tray_btn.setToolTip(_("最小化到托盘"))
         self.tray_btn.clicked.connect(self.minimize_to_tray.emit)
         layout.addWidget(self.tray_btn)
-        
+
         # 最小化
         self.min_btn = TitleBarButton("─")
-        self.min_btn.setToolTip("最小化")
+        self.min_btn.setToolTip(_("最小化"))
         self.min_btn.clicked.connect(self.minimize_window.emit)
         layout.addWidget(self.min_btn)
-        
+
         # 最大化/还原
         self.max_btn = TitleBarButton("□")
-        self.max_btn.setToolTip("最大化")
+        self.max_btn.setToolTip(_("最大化"))
         self.max_btn.clicked.connect(self.maximize_window.emit)
         layout.addWidget(self.max_btn)
-        
+
         # 关闭
         self.close_btn = TitleBarButton("×")
         self.close_btn.set_close_button(True)
-        self.close_btn.setToolTip("关闭")
+        self.close_btn.setToolTip(_("关闭"))
         self.close_btn.clicked.connect(self.close_window.emit)
         layout.addWidget(self.close_btn)
     
@@ -126,10 +127,10 @@ class CustomTitleBar(QWidget):
         """更新最大化按钮图标"""
         if is_maximized:
             self.max_btn.setText("❐")
-            self.max_btn.setToolTip("还原")
+            self.max_btn.setToolTip(_("还原"))
         else:
             self.max_btn.setText("□")
-            self.max_btn.setToolTip("最大化")
+            self.max_btn.setToolTip(_("最大化"))
     
     def apply_theme(self):
         t = get_theme()
@@ -227,7 +228,7 @@ class RecordingIndicator(QWidget):
         layout.addWidget(self.dot)
         
         # 状态文字
-        self.status_label = QLabel("未录制")
+        self.status_label = QLabel(_("未录制"))
         layout.addWidget(self.status_label)
         
         layout.addStretch()
@@ -248,20 +249,20 @@ class RecordingIndicator(QWidget):
     def set_recording(self, recording: bool, paused: bool = False):
         self._recording = recording
         t = get_theme()
-        
+
         if recording and not paused:
             self.dot.setStyleSheet(f"color: {t.error}; font-size: 10px;")
-            self.status_label.setText("录制中")
+            self.status_label.setText(_("录制中"))
             self.status_label.setStyleSheet(f"color: {t.error}; font-size: 12px;")
             self._blink_timer.start(800)
         elif recording and paused:
             self.dot.setStyleSheet(f"color: {t.warning}; font-size: 10px;")
-            self.status_label.setText("已暂停")
+            self.status_label.setText(_("已暂停"))
             self.status_label.setStyleSheet(f"color: {t.warning}; font-size: 12px;")
             self._blink_timer.stop()
         else:
             self.dot.setStyleSheet(f"color: {t.text_muted}; font-size: 10px;")
-            self.status_label.setText("未录制")
+            self.status_label.setText(_("未录制"))
             self.status_label.setStyleSheet(f"color: {t.text_muted}; font-size: 12px;")
             self._blink_timer.stop()
     
@@ -345,22 +346,22 @@ class SettingsPanel(QWidget):
         layout.setSpacing(16)
         
         # 页面标题
-        self.page_title = QLabel("⚙️ 设置")
+        self.page_title = QLabel(_("⚙️ 设置"))
         self.page_title.setMinimumHeight(40)
         layout.addWidget(self.page_title)
         
         # === API 设置 ===
         api_frame, api_layout = self._create_card(layout)
-        self._create_title("🔑 API 设置", api_layout)
-        
-        api_desc = QLabel("支持 OpenAI 兼容接口（心流API、OpenAI、DeepSeek、本地模型等）")
+        self._create_title(_("🔑 API 设置"), api_layout)
+
+        api_desc = QLabel(_("支持 OpenAI 兼容接口（心流API、OpenAI、DeepSeek、本地模型等）"))
         api_desc.setObjectName("cardDesc")
         api_desc.setWordWrap(True)
         self._descs.append(api_desc)
         api_layout.addWidget(api_desc)
-        
+
         # API URL 输入框
-        api_url_label = QLabel("API 地址")
+        api_url_label = QLabel(_("API 地址"))
         api_url_label.setObjectName("cardDesc")
         self._descs.append(api_url_label)
         api_layout.addWidget(api_url_label)
@@ -375,15 +376,15 @@ class SettingsPanel(QWidget):
         api_key_label.setObjectName("cardDesc")
         self._descs.append(api_key_label)
         api_layout.addWidget(api_key_label)
-        
+
         self.api_key_input = QLineEdit()
         self.api_key_input.setPlaceholderText("sk-...")
         self.api_key_input.setEchoMode(QLineEdit.Password)
         self.api_key_input.setMinimumHeight(40)
         api_layout.addWidget(self.api_key_input)
-        
+
         # 模型名称输入框
-        model_label = QLabel("模型名称（需支持视觉）")
+        model_label = QLabel(_("模型名称（需支持视觉）"))
         model_label.setObjectName("cardDesc")
         self._descs.append(model_label)
         api_layout.addWidget(model_label)
@@ -397,13 +398,13 @@ class SettingsPanel(QWidget):
         key_row = QHBoxLayout()
         key_row.setSpacing(10)
         
-        self.save_btn = QPushButton("保存配置")
+        self.save_btn = QPushButton(_("保存配置"))
         self.save_btn.setCursor(Qt.PointingHandCursor)
         self.save_btn.setFixedSize(100, 40)
         self.save_btn.clicked.connect(self._save_api_config)
         key_row.addWidget(self.save_btn)
         
-        self.test_btn = QPushButton("测试连接")
+        self.test_btn = QPushButton(_("测试连接"))
         self.test_btn.setCursor(Qt.PointingHandCursor)
         self.test_btn.setFixedSize(100, 40)
         self.test_btn.clicked.connect(self._test_connection)
@@ -431,16 +432,16 @@ class SettingsPanel(QWidget):
         theme_layout.setContentsMargins(20, 16, 20, 16)
         theme_layout.setSpacing(10)
         
-        self._create_title("🎨 外观", theme_layout)
+        self._create_title(_("🎨 外观"), theme_layout)
         
         theme_content = QHBoxLayout()
-        self.theme_label = QLabel("主题模式")
+        self.theme_label = QLabel(_("主题模式"))
         self.theme_label.setObjectName("cardDesc")
         self._descs.append(self.theme_label)
         theme_content.addWidget(self.theme_label)
         theme_content.addStretch()
         
-        self.theme_toggle = QPushButton("🌙 暗色")
+        self.theme_toggle = QPushButton(_("🌙 暗色"))
         self.theme_toggle.setCursor(Qt.PointingHandCursor)
         self.theme_toggle.setFixedSize(90, 34)
         self.theme_toggle.clicked.connect(self._toggle_theme)
@@ -457,8 +458,8 @@ class SettingsPanel(QWidget):
         record_layout.setContentsMargins(20, 16, 20, 16)
         record_layout.setSpacing(10)
         
-        self._create_title("🎬 录制", record_layout)
-        record_desc = QLabel(f"帧率: {config.RECORD_FPS} FPS | 切片: {config.CHUNK_DURATION_SECONDS}秒")
+        self._create_title(_("🎬 录制"), record_layout)
+        record_desc = QLabel(_("帧率: {record_fps} FPS | 切片: {chunk_duration_seconds}秒").format(record_fps=config.RECORD_FPS, chunk_duration_seconds=config.CHUNK_DURATION_SECONDS))
         record_desc.setObjectName("cardDesc")
         self._descs.append(record_desc)
         record_layout.addWidget(record_desc)
@@ -468,19 +469,19 @@ class SettingsPanel(QWidget):
         
         # === 数据管理 ===
         data_frame, data_layout = self._create_card(layout)
-        self._create_title("💾 数据管理", data_layout)
-        self._create_desc("导出或导入您的所有活动数据", data_layout)
+        self._create_title(_("💾 数据管理"), data_layout)
+        self._create_desc(_("导出或导入您的所有活动数据"), data_layout)
         
         data_row = QHBoxLayout()
         data_row.setSpacing(10)
         
-        self.export_btn = QPushButton("📤 导出数据")
+        self.export_btn = QPushButton(_("📤 导出数据"))
         self.export_btn.setCursor(Qt.PointingHandCursor)
         self.export_btn.setFixedHeight(38)
         self.export_btn.clicked.connect(self._export_data)
         data_row.addWidget(self.export_btn)
         
-        self.import_btn = QPushButton("📥 导入数据")
+        self.import_btn = QPushButton(_("📥 导入数据"))
         self.import_btn.setCursor(Qt.PointingHandCursor)
         self.import_btn.setFixedHeight(38)
         self.import_btn.clicked.connect(self._import_data)
@@ -491,18 +492,18 @@ class SettingsPanel(QWidget):
         
         # === 邮件推送设置 ===
         email_frame, email_layout = self._create_card(layout)
-        self._create_title("📧 邮件推送", email_layout)
-        self._create_desc("每日 12:00 和 22:00 自动发送效率报告", email_layout)
+        self._create_title(_("📧 邮件推送"), email_layout)
+        self._create_desc(_("每日 12:00 和 22:00 自动发送效率报告"), email_layout)
         
         # 启用开关行
         enable_row = QHBoxLayout()
-        self.email_enable_label = QLabel("启用推送")
+        self.email_enable_label = QLabel(_("启用推送"))
         self.email_enable_label.setObjectName("cardDesc")
         self._descs.append(self.email_enable_label)
         enable_row.addWidget(self.email_enable_label)
         enable_row.addStretch()
         
-        self.email_enable_btn = QPushButton("已关闭")
+        self.email_enable_btn = QPushButton(_("已关闭"))
         self.email_enable_btn.setCheckable(True)
         self.email_enable_btn.setCursor(Qt.PointingHandCursor)
         self.email_enable_btn.setFixedSize(72, 30)
@@ -515,7 +516,7 @@ class SettingsPanel(QWidget):
         email_grid.setSpacing(8)
         
         # 发送邮箱
-        sender_label = QLabel("发送邮箱")
+        sender_label = QLabel(_("发送邮箱"))
         sender_label.setObjectName("inputLabel")
         self._descs.append(sender_label)
         email_grid.addWidget(sender_label)
@@ -526,19 +527,19 @@ class SettingsPanel(QWidget):
         email_grid.addWidget(self.email_sender_input)
         
         # 授权码
-        auth_label = QLabel("授权码（在 QQ 邮箱设置中获取，非密码）")
+        auth_label = QLabel(_("授权码（在 QQ 邮箱设置中获取，非密码）"))
         auth_label.setObjectName("inputLabel")
         self._descs.append(auth_label)
         email_grid.addWidget(auth_label)
         
         self.email_auth_input = QLineEdit()
-        self.email_auth_input.setPlaceholderText("16位授权码")
+        self.email_auth_input.setPlaceholderText(_("16位授权码"))
         self.email_auth_input.setEchoMode(QLineEdit.Password)
         self.email_auth_input.setMinimumHeight(40)
         email_grid.addWidget(self.email_auth_input)
         
         # 接收邮箱
-        receiver_label = QLabel("接收邮箱")
+        receiver_label = QLabel(_("接收邮箱"))
         receiver_label.setObjectName("inputLabel")
         self._descs.append(receiver_label)
         email_grid.addWidget(receiver_label)
@@ -554,13 +555,13 @@ class SettingsPanel(QWidget):
         email_btn_row = QHBoxLayout()
         email_btn_row.setSpacing(10)
         
-        self.email_save_btn = QPushButton("保存配置")
+        self.email_save_btn = QPushButton(_("保存配置"))
         self.email_save_btn.setCursor(Qt.PointingHandCursor)
         self.email_save_btn.setFixedHeight(38)
         self.email_save_btn.clicked.connect(self._save_email_config)
         email_btn_row.addWidget(self.email_save_btn)
         
-        self.email_test_btn = QPushButton("📨 测试发送")
+        self.email_test_btn = QPushButton(_("📨 测试发送"))
         self.email_test_btn.setCursor(Qt.PointingHandCursor)
         self.email_test_btn.setFixedHeight(38)
         self.email_test_btn.clicked.connect(self._send_test_email)
@@ -580,7 +581,7 @@ class SettingsPanel(QWidget):
         autostart_frame, autostart_layout = self._create_card(layout)
         self._create_title("🚀 开机启动", autostart_layout)
         
-        autostart_desc = QLabel("开机时自动启动 Dayflow 并最小化到系统托盘")
+        autostart_desc = QLabel(_("开机时自动启动 Dayflow 并最小化到系统托盘"))
         autostart_desc.setObjectName("cardDesc")
         self._descs.append(autostart_desc)
         autostart_layout.addWidget(autostart_desc)
@@ -589,7 +590,7 @@ class SettingsPanel(QWidget):
         autostart_btn_row = QHBoxLayout()
         autostart_btn_row.setSpacing(10)
         
-        self.autostart_btn = QPushButton("⚪ 未启用")
+        self.autostart_btn = QPushButton(_("⚪ 未启用"))
         self.autostart_btn.setCursor(Qt.PointingHandCursor)
         self.autostart_btn.setFixedHeight(38)
         self.autostart_btn.setCheckable(True)
@@ -609,8 +610,8 @@ class SettingsPanel(QWidget):
         
         # === 软件更新 ===
         update_frame, update_layout = self._create_card(layout)
-        self._create_title("🔄 软件更新", update_layout)
-        self.update_version_label = QLabel(f"当前版本: v{config.VERSION}")
+        self._create_title(_("🔄 软件更新"), update_layout)
+        self.update_version_label = QLabel(_("当前版本: v{}").format(config.VERSION))
         self.update_version_label.setObjectName("cardDesc")
         self._descs.append(self.update_version_label)
         update_layout.addWidget(self.update_version_label)
@@ -619,7 +620,7 @@ class SettingsPanel(QWidget):
         update_btn_row = QHBoxLayout()
         update_btn_row.setSpacing(10)
         
-        self.check_update_btn = QPushButton("🔍 检查更新")
+        self.check_update_btn = QPushButton(_("🔍 检查更新"))
         self.check_update_btn.setCursor(Qt.PointingHandCursor)
         self.check_update_btn.setFixedHeight(38)
         self.check_update_btn.clicked.connect(self._check_update)
@@ -645,14 +646,14 @@ class SettingsPanel(QWidget):
         self.update_action_row = QHBoxLayout()
         self.update_action_row.setSpacing(10)
         
-        self.download_btn = QPushButton("⬇️ 下载更新")
+        self.download_btn = QPushButton(_("⬇️ 下载更新"))
         self.download_btn.setCursor(Qt.PointingHandCursor)
         self.download_btn.setFixedHeight(38)
         self.download_btn.clicked.connect(self._start_download)
         self.download_btn.hide()
         self.update_action_row.addWidget(self.download_btn)
         
-        self.install_btn = QPushButton("🚀 立即安装")
+        self.install_btn = QPushButton(_("🚀 立即安装"))
         self.install_btn.setCursor(Qt.PointingHandCursor)
         self.install_btn.setFixedHeight(38)
         self.install_btn.clicked.connect(self._install_update)
@@ -664,9 +665,9 @@ class SettingsPanel(QWidget):
         
         # === 日志查看 ===
         log_frame, log_layout = self._create_card(layout)
-        self._create_title("📋 运行日志", log_layout)
+        self._create_title(_("📋 运行日志"), log_layout)
         
-        log_desc = QLabel("查看应用运行日志，便于排查问题")
+        log_desc = QLabel(_("查看应用运行日志，便于排查问题"))
         log_desc.setObjectName("cardDesc")
         self._descs.append(log_desc)
         log_layout.addWidget(log_desc)
@@ -675,20 +676,20 @@ class SettingsPanel(QWidget):
         log_btn_row = QHBoxLayout()
         log_btn_row.setSpacing(10)
         
-        self.view_log_btn = QPushButton("📄 查看日志")
+        self.view_log_btn = QPushButton(_("📄 查看日志"))
         self.view_log_btn.setCursor(Qt.PointingHandCursor)
         self.view_log_btn.setFixedHeight(38)
         self.view_log_btn.clicked.connect(self._toggle_log_view)
         log_btn_row.addWidget(self.view_log_btn)
         
-        self.refresh_log_btn = QPushButton("🔄 刷新")
+        self.refresh_log_btn = QPushButton(_("🔄 刷新"))
         self.refresh_log_btn.setCursor(Qt.PointingHandCursor)
         self.refresh_log_btn.setFixedHeight(38)
         self.refresh_log_btn.clicked.connect(self._refresh_log)
         self.refresh_log_btn.hide()
         log_btn_row.addWidget(self.refresh_log_btn)
         
-        self.open_log_folder_btn = QPushButton("📂 打开日志目录")
+        self.open_log_folder_btn = QPushButton(_("📂 打开日志目录"))
         self.open_log_folder_btn.setCursor(Qt.PointingHandCursor)
         self.open_log_folder_btn.setFixedHeight(38)
         self.open_log_folder_btn.clicked.connect(self._open_log_folder)
@@ -703,14 +704,14 @@ class SettingsPanel(QWidget):
         self.log_text.setReadOnly(True)
         self.log_text.setFixedHeight(300)
         self.log_text.hide()
-        self.log_text.setPlaceholderText("点击「查看日志」加载日志内容...")
+        self.log_text.setPlaceholderText(_("点击「查看日志」加载日志内容..."))
         log_layout.addWidget(self.log_text)
         
         # === 关于 ===
         about_frame, about_layout = self._create_card(layout)
-        self._create_title("ℹ️ 关于 Dayflow", about_layout)
-        
-        about_text = QLabel(f"Windows 版本 {config.VERSION}\n智能时间追踪与生产力分析工具")
+        self._create_title(_("ℹ️ 关于 Dayflow"), about_layout)
+
+        about_text = QLabel(_("Windows 版本 {}\n智能时间追踪与生产力分析工具").format(config.VERSION))
         about_text.setObjectName("cardDesc")
         about_text.setWordWrap(True)
         self._descs.append(about_text)
@@ -1004,7 +1005,7 @@ class SettingsPanel(QWidget):
         config.API_MODEL = api_model
         
         self.api_key_saved.emit(api_key)
-        QMessageBox.information(self, "成功", "API 配置已保存")
+        QMessageBox.information(self, _("成功"), _("API 配置已保存"))
     
     def _test_connection(self):
         """测试 API 连接"""
@@ -1016,13 +1017,13 @@ class SettingsPanel(QWidget):
         api_model = self.api_model_input.text().strip() or config.API_MODEL
         
         if not api_key:
-            self._show_test_result(False, "请先输入 API Key")
+            self._show_test_result(False, _("请先输入 API Key"))
             return
         
         # 禁用按钮，显示加载状态
         self.test_btn.setEnabled(False)
-        self.test_btn.setText("测试中...")
-        self.test_result_label.setText("正在连接...")
+        self.test_btn.setText(_("测试中..."))
+        self.test_result_label.setText(_("正在连接..."))
         self.test_result_label.setStyleSheet("font-size: 13px; color: #9CA3AF; padding: 8px 0;")
         self.test_result_label.show()
         
@@ -1057,7 +1058,7 @@ class SettingsPanel(QWidget):
     def _show_test_result(self, success: bool, message: str):
         """显示测试结果"""
         self.test_btn.setEnabled(True)
-        self.test_btn.setText("测试连接")
+        self.test_btn.setText(_("测试连接"))
         self.test_result_label.show()
         
         if success:
@@ -1097,9 +1098,9 @@ class SettingsPanel(QWidget):
     def _update_theme_button(self, is_dark: bool):
         """更新主题按钮显示"""
         if is_dark:
-            self.theme_toggle.setText("🌙 暗色")
+            self.theme_toggle.setText(_("🌙 暗色"))
         else:
-            self.theme_toggle.setText("☀️ 亮色")
+            self.theme_toggle.setText(_("☀️ 亮色"))
     
     def _export_data(self):
         """导出数据"""
@@ -1109,9 +1110,9 @@ class SettingsPanel(QWidget):
         
         file_path, _ = QFileDialog.getSaveFileName(
             self,
-            "导出数据",
+            _("导出数据"),
             f"dayflow_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
-            "JSON 文件 (*.json)"
+            _("JSON 文件 (*.json)")
         )
         
         if not file_path:
@@ -1154,11 +1155,11 @@ class SettingsPanel(QWidget):
                 json.dump(data, f, ensure_ascii=False, indent=2)
             
             QMessageBox.information(
-                self, "导出成功", 
-                f"已导出 {len(data['cards'])} 条活动记录\n保存到: {file_path}"
+                self, _("导出成功"), 
+                _("已导出 {len} 条活动记录\n保存到: {file_path}").format(len=len(data["cards"]), file_path=file_path)
             )
         except Exception as e:
-            QMessageBox.critical(self, "导出失败", f"导出数据时出错: {e}")
+            QMessageBox.critical(self, _("导出失败"), _("导出数据时出错: {}").format(e))
     
     def _import_data(self):
         """导入数据"""
@@ -1166,17 +1167,17 @@ class SettingsPanel(QWidget):
         
         file_path, _ = QFileDialog.getOpenFileName(
             self,
-            "导入数据",
+            _("导入数据"),
             "",
-            "JSON 文件 (*.json)"
+            _("JSON 文件 (*.json)")
         )
         
         if not file_path:
             return
         
         reply = QMessageBox.question(
-            self, "确认导入",
-            "导入数据会与现有数据合并，重复的记录会被跳过。\n是否继续？",
+            self, _("确认导入"),
+            _("导入数据会与现有数据合并，重复的记录会被跳过。\n是否继续？"),
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
         )
@@ -1229,11 +1230,11 @@ class SettingsPanel(QWidget):
                         )
             
             QMessageBox.information(
-                self, "导入完成",
-                f"成功导入 {imported_count} 条记录\n跳过 {skipped_count} 条重复记录"
+                self, _("导入完成"),
+                _("成功导入 {imported_count} 条记录\n跳过 {skipped_count} 条重复记录").format(imported_count=imported_count, skipped_count=skipped_count)
             )
         except Exception as e:
-            QMessageBox.critical(self, "导入失败", f"导入数据时出错: {e}")
+            QMessageBox.critical(self, _("导入失败"), _("导入数据时出错: {}").format(e))
     
     def _toggle_email(self):
         """切换邮件推送状态"""
@@ -1243,7 +1244,7 @@ class SettingsPanel(QWidget):
         """更新邮件开关按钮状态"""
         t = get_theme()
         if self.email_enable_btn.isChecked():
-            self.email_enable_btn.setText("已开启")
+            self.email_enable_btn.setText(_("已开启"))
             self.email_enable_btn.setStyleSheet(f"""
                 QPushButton {{
                     background-color: {t.success};
@@ -1255,7 +1256,7 @@ class SettingsPanel(QWidget):
                 }}
             """)
         else:
-            self.email_enable_btn.setText("已关闭")
+            self.email_enable_btn.setText(_("已关闭"))
             self.email_enable_btn.setStyleSheet(f"""
                 QPushButton {{
                     background-color: {t.bg_tertiary};
@@ -1278,7 +1279,7 @@ class SettingsPanel(QWidget):
         
         # 验证
         if enabled and (not sender or not auth or not receiver):
-            QMessageBox.warning(self, "配置不完整", "请填写完整的邮箱信息")
+            QMessageBox.warning(self, _("配置不完整"), _("请填写完整的邮箱信息"))
             return
         
         # 保存
@@ -1287,7 +1288,7 @@ class SettingsPanel(QWidget):
         self.storage.set_setting("email_receiver", receiver)
         self.storage.set_setting("email_enabled", "true" if enabled else "false")
         
-        QMessageBox.information(self, "成功", "邮件配置已保存")
+        QMessageBox.information(self, _("成功"), _("邮件配置已保存"))
     
     def _send_test_email(self):
         """发送测试邮件"""
@@ -1296,13 +1297,13 @@ class SettingsPanel(QWidget):
         receiver = self.email_receiver_input.text().strip()
         
         if not sender or not auth or not receiver:
-            QMessageBox.warning(self, "配置不完整", "请先填写完整的邮箱信息")
+            QMessageBox.warning(self, _("配置不完整"), _("请先填写完整的邮箱信息"))
             return
         
         # 显示加载状态
         self.email_test_btn.setEnabled(False)
-        self.email_test_btn.setText("发送中...")
-        self.email_result_label.setText("正在发送测试邮件...")
+        self.email_test_btn.setText(_("发送中..."))
+        self.email_result_label.setText(_("正在发送测试邮件..."))
         self.email_result_label.setStyleSheet("font-size: 13px; color: #9CA3AF; padding: 8px 0;")
         self.email_result_label.show()
         
@@ -1322,7 +1323,7 @@ class SettingsPanel(QWidget):
                 generator = ReportGenerator(self.storage)
                 
                 from datetime import datetime
-                subject = f"🧪 Dayflow 测试邮件 - {datetime.now().strftime('%H:%M')}"
+                subject = _("🧪 Dayflow 测试邮件 - {time}").format(time=datetime.now().strftime('%H:%M'))
                 html = generator.generate_daily_report()
                 
                 success, error_msg = service.send_report(subject, html)
@@ -1341,15 +1342,15 @@ class SettingsPanel(QWidget):
     def _show_email_success(self):
         """显示邮件发送成功"""
         self.email_test_btn.setEnabled(True)
-        self.email_test_btn.setText("📨 测试发送")
+        self.email_test_btn.setText(_("📨 测试发送"))
         t = get_theme()
-        self.email_result_label.setText("✅ 测试邮件发送成功！请检查收件箱")
+        self.email_result_label.setText(_("✅ 测试邮件发送成功！请检查收件箱"))
         self.email_result_label.setStyleSheet(f"font-size: 13px; color: {t.success}; padding: 4px 0;")
     
     def _show_email_error(self, error: str):
         """显示邮件发送失败"""
         self.email_test_btn.setEnabled(True)
-        self.email_test_btn.setText("📨 测试发送")
+        self.email_test_btn.setText(_("📨 测试发送"))
         t = get_theme()
         self.email_result_label.setText(f"❌ {error}")
         self.email_result_label.setStyleSheet(f"font-size: 13px; color: {t.error}; padding: 4px 0;")
@@ -1358,24 +1359,24 @@ class SettingsPanel(QWidget):
     def _on_test_email_result(self, success: bool):
         """测试邮件结果回调"""
         self.email_test_btn.setEnabled(True)
-        self.email_test_btn.setText("📨 发送测试邮件")
+        self.email_test_btn.setText(_("📨 发送测试邮件"))
         
         t = get_theme()
         if success:
-            self.email_result_label.setText("✅ 测试邮件发送成功！请检查收件箱")
+            self.email_result_label.setText(_("✅ 测试邮件发送成功！请检查收件箱"))
             self.email_result_label.setStyleSheet(f"font-size: 13px; color: {t.success}; padding: 8px 0;")
         else:
-            self.email_result_label.setText("❌ 发送失败，请检查邮箱配置")
+            self.email_result_label.setText(_("❌ 发送失败，请检查邮箱配置"))
             self.email_result_label.setStyleSheet(f"font-size: 13px; color: {t.error}; padding: 8px 0;")
     
     @Slot(str)
     def _on_test_email_error(self, error: str):
         """测试邮件错误回调"""
         self.email_test_btn.setEnabled(True)
-        self.email_test_btn.setText("📨 发送测试邮件")
+        self.email_test_btn.setText(_("📨 发送测试邮件"))
         
         t = get_theme()
-        self.email_result_label.setText(f"❌ 发送失败: {error}")
+        self.email_result_label.setText(_("❌ 发送失败: {}").format(error))
         self.email_result_label.setStyleSheet(f"font-size: 13px; color: {t.error}; padding: 8px 0;")
     
     # ========== 软件更新相关方法 ==========
@@ -1385,8 +1386,8 @@ class SettingsPanel(QWidget):
         from core.updater import UpdateManager
         
         self.check_update_btn.setEnabled(False)
-        self.check_update_btn.setText("检查中...")
-        self.update_status_label.setText("正在检查...")
+        self.check_update_btn.setText(_("检查中..."))
+        self.update_status_label.setText(_("正在检查..."))
         t = get_theme()
         self.update_status_label.setStyleSheet(f"font-size: 13px; color: {t.text_secondary};")
         
@@ -1413,24 +1414,24 @@ class SettingsPanel(QWidget):
     def _on_check_update_result(self, has_update: bool, latest_version: str, release_notes: str):
         """检查更新结果回调"""
         self.check_update_btn.setEnabled(True)
-        self.check_update_btn.setText("🔍 检查更新")
+        self.check_update_btn.setText(_("🔍 检查更新"))
         t = get_theme()
         
         if has_update:
-            self.update_status_label.setText(f"发现新版本: v{latest_version}")
+            self.update_status_label.setText(_("发现新版本: v{}").format(latest_version))
             self.update_status_label.setStyleSheet(f"font-size: 13px; color: {t.success}; font-weight: 600;")
             self.download_btn.show()
             self._latest_version = latest_version
             self._release_notes = release_notes
         else:
-            self.update_status_label.setText("已是最新版本 ✓")
+            self.update_status_label.setText(_("已是最新版本 ✓"))
             self.update_status_label.setStyleSheet(f"font-size: 13px; color: {t.text_secondary};")
             self.download_btn.hide()
     
     def _start_download(self):
         """开始下载更新"""
         self.download_btn.setEnabled(False)
-        self.download_btn.setText("下载中...")
+        self.download_btn.setText(_("下载中..."))
         self.update_progress.setValue(0)
         self.update_progress.show()
         
@@ -1461,18 +1462,18 @@ class SettingsPanel(QWidget):
     def _on_download_complete(self, success: bool, error: str):
         """下载完成回调"""
         self.download_btn.setEnabled(True)
-        self.download_btn.setText("⬇️ 下载更新")
+        self.download_btn.setText(_("⬇️ 下载更新"))
         t = get_theme()
         
         if success:
             self.update_progress.setValue(100)
-            self.update_status_label.setText("下载完成，点击安装")
+            self.update_status_label.setText(_("下载完成，点击安装"))
             self.update_status_label.setStyleSheet(f"font-size: 13px; color: {t.success}; font-weight: 600;")
             self.download_btn.hide()
             self.install_btn.show()
         else:
             self.update_progress.hide()
-            self.update_status_label.setText(f"下载失败")
+            self.update_status_label.setText(_("下载失败"))
             self.update_status_label.setStyleSheet(f"font-size: 13px; color: {t.error};")
             self._show_download_failed_dialog(error)
     
@@ -1481,12 +1482,12 @@ class SettingsPanel(QWidget):
         from core.updater import UpdateManager
         
         msg = QMessageBox(self)
-        msg.setWindowTitle("下载失败")
-        msg.setText(f"自动下载失败：{error}")
-        msg.setInformativeText("您可以尝试手动下载：")
+        msg.setWindowTitle(_("下载失败"))
+        msg.setText(_("自动下载失败：{}").format(error))
+        msg.setInformativeText(_("您可以尝试手动下载："))
         
-        github_btn = msg.addButton("GitHub 下载", QMessageBox.ActionRole)
-        mirror_btn = msg.addButton("镜像下载(国内加速)", QMessageBox.ActionRole)
+        github_btn = msg.addButton(_("GitHub 下载"), QMessageBox.ActionRole)
+        mirror_btn = msg.addButton(_("镜像下载(国内加速)"), QMessageBox.ActionRole)
         msg.addButton("取消", QMessageBox.RejectRole)
         
         msg.exec()
@@ -1500,8 +1501,8 @@ class SettingsPanel(QWidget):
         """安装更新"""
         reply = QMessageBox.question(
             self,
-            "安装更新",
-            f"即将安装 v{self._latest_version}\n\n程序将自动重启，是否继续？",
+            _("安装更新"),
+            _("即将安装 v{latest_version}\n\n程序将自动重启，是否继续？").format(latest_version=self._latest_version),
             QMessageBox.Yes | QMessageBox.No
         )
         
@@ -1512,8 +1513,8 @@ class SettingsPanel(QWidget):
             else:
                 QMessageBox.warning(
                     self,
-                    "安装失败",
-                    "无法启动更新程序，请手动下载安装最新版本。"
+                    _("安装失败"),
+                    _("无法启动更新程序，请手动下载安装最新版本。")
                 )
     
     def _toggle_log_view(self):
@@ -1521,12 +1522,12 @@ class SettingsPanel(QWidget):
         if self.log_text.isVisible():
             self.log_text.hide()
             self.refresh_log_btn.hide()
-            self.view_log_btn.setText("📄 查看日志")
+            self.view_log_btn.setText(_("📄 查看日志"))
         else:
             self._refresh_log()
             self.log_text.show()
             self.refresh_log_btn.show()
-            self.view_log_btn.setText("📄 收起日志")
+            self.view_log_btn.setText(_("📄 收起日志"))
     
     def _refresh_log(self):
         """刷新日志内容"""
@@ -1549,7 +1550,7 @@ class SettingsPanel(QWidget):
             scrollbar.setValue(scrollbar.maximum())
             
         except Exception as e:
-            self.log_text.setPlainText(f"❌ 读取日志失败: {e}")
+            self.log_text.setPlainText(_("❌ 读取日志失败: {}").format(e))
     
     def _open_log_folder(self):
         """打开日志所在目录"""
@@ -1560,7 +1561,7 @@ class SettingsPanel(QWidget):
             # Windows 打开文件夹
             subprocess.run(['explorer', str(log_dir)])
         else:
-            QMessageBox.warning(self, "提示", f"日志目录不存在:\n{log_dir}")
+            QMessageBox.warning(self, _("提示"), f"日志目录不存在:\n{log_dir}")
     
     def _init_autostart_status(self):
         """初始化自启动状态"""
@@ -1569,8 +1570,8 @@ class SettingsPanel(QWidget):
         if not is_frozen():
             # 开发模式
             self.autostart_btn.setEnabled(False)
-            self.autostart_btn.setText("⚪ 仅 EXE 可用")
-            self.autostart_status.setText("开发模式下不可用")
+            self.autostart_btn.setText(_("⚪ 仅 EXE 可用"))
+            self.autostart_status.setText(_("开发模式下不可用"))
         else:
             enabled = is_autostart_enabled()
             self.autostart_btn.setChecked(enabled)
@@ -1608,7 +1609,7 @@ class SettingsPanel(QWidget):
         self.autostart_btn.setChecked(enabled)
         
         if enabled:
-            self.autostart_btn.setText("🟢 已启用")
+            self.autostart_btn.setText(_("🟢 已启用"))
             self.autostart_btn.setStyleSheet(f"""
                 QPushButton {{
                     background-color: {t.success};
@@ -1624,7 +1625,7 @@ class SettingsPanel(QWidget):
                 }}
             """)
         else:
-            self.autostart_btn.setText("⚪ 未启用")
+            self.autostart_btn.setText(_("⚪ 未启用"))
             self.autostart_btn.setStyleSheet(f"""
                 QPushButton {{
                     background-color: {t.bg_tertiary};
@@ -1713,16 +1714,16 @@ class MainWindow(QMainWindow):
         sidebar_layout.addWidget(self.logo)
         
         # 导航按钮
-        self.nav_timeline = SidebarButton("时间轴", "📊")
+        self.nav_timeline = SidebarButton(_("时间轴"), "📊")
         self.nav_timeline.setChecked(True)
         self.nav_timeline.clicked.connect(lambda: self._switch_page(0))
         sidebar_layout.addWidget(self.nav_timeline)
         
-        self.nav_stats = SidebarButton("统计", "📈")
+        self.nav_stats = SidebarButton(_("统计"), "📈")
         self.nav_stats.clicked.connect(lambda: self._switch_page(1))
         sidebar_layout.addWidget(self.nav_stats)
         
-        self.nav_settings = SidebarButton("设置", "⚙️")
+        self.nav_settings = SidebarButton(_("设置"), "⚙️")
         self.nav_settings.clicked.connect(lambda: self._switch_page(2))
         sidebar_layout.addWidget(self.nav_settings)
         
@@ -1733,14 +1734,14 @@ class MainWindow(QMainWindow):
         sidebar_layout.addWidget(self.recording_indicator)
         
         # 录制控制按钮
-        self.record_btn = QPushButton("开始录制")
+        self.record_btn = QPushButton(_("开始录制"))
         self.record_btn.setCursor(Qt.PointingHandCursor)
         self.record_btn.setFixedHeight(44)
         self.record_btn.clicked.connect(self._toggle_recording)
         sidebar_layout.addWidget(self.record_btn)
         
         # 暂停按钮
-        self.pause_btn = QPushButton("⏸ 暂停")
+        self.pause_btn = QPushButton(_("⏸ 暂停"))
         self.pause_btn.setCursor(Qt.PointingHandCursor)
         self.pause_btn.setFixedHeight(36)
         self.pause_btn.clicked.connect(self._toggle_pause)
@@ -1751,7 +1752,7 @@ class MainWindow(QMainWindow):
         self.github_btn = QPushButton("⭐ GitHub")
         self.github_btn.setCursor(Qt.PointingHandCursor)
         self.github_btn.setFixedHeight(32)
-        self.github_btn.setToolTip("在 GitHub 上查看项目")
+        self.github_btn.setToolTip(_("在 GitHub 上查看项目"))
         self.github_btn.clicked.connect(self._open_github)
         sidebar_layout.addWidget(self.github_btn)
         
@@ -1814,24 +1815,24 @@ class MainWindow(QMainWindow):
         # 创建托盘图标
         tray_icon = self._create_tray_icon()
         self.tray_icon.setIcon(tray_icon)
-        self.tray_icon.setToolTip("Dayflow - 智能时间追踪")
+        self.tray_icon.setToolTip(_("Dayflow - 智能时间追踪"))
         
         tray_menu = QMenu()
         
         # 显示窗口
-        show_action = QAction("📱 显示窗口", self)
+        show_action = QAction(_("📱 显示窗口"), self)
         show_action.triggered.connect(self._show_window)
         tray_menu.addAction(show_action)
         
         tray_menu.addSeparator()
         
         # 录制控制
-        self.tray_record_action = QAction("▶ 开始录制", self)
+        self.tray_record_action = QAction(_("▶ 开始录制"), self)
         self.tray_record_action.triggered.connect(self._toggle_recording)
         tray_menu.addAction(self.tray_record_action)
         
         # 暂停控制
-        self.tray_pause_action = QAction("⏸ 暂停录制", self)
+        self.tray_pause_action = QAction(_("⏸ 暂停录制"), self)
         self.tray_pause_action.triggered.connect(self._toggle_pause)
         self.tray_pause_action.setEnabled(False)
         tray_menu.addAction(self.tray_pause_action)
@@ -1839,7 +1840,7 @@ class MainWindow(QMainWindow):
         tray_menu.addSeparator()
         
         # 退出
-        quit_action = QAction("❌ 退出", self)
+        quit_action = QAction(_("❌ 退出"), self)
         quit_action.triggered.connect(self._quit_app)
         tray_menu.addAction(quit_action)
         
@@ -1930,14 +1931,14 @@ class MainWindow(QMainWindow):
             self._start_analysis()
             self._update_record_button(True)
             self.recording_indicator.set_recording(True)
-            self.tray_record_action.setText("⏹ 停止录制")
+            self.tray_record_action.setText(_("⏹ 停止录制"))
             self.pause_btn.setEnabled(True)
             self.tray_pause_action.setEnabled(True)
             
             # 显示托盘提示
             self.tray_icon.showMessage(
                 "Dayflow",
-                "已自动开始录制 ✓",
+                _("已自动开始录制 ✓"),
                 QSystemTrayIcon.Information,
                 2000
             )
@@ -1960,14 +1961,14 @@ class MainWindow(QMainWindow):
             
             # 立即更新 UI，让用户知道正在停止
             self.record_btn.setEnabled(False)
-            self.record_btn.setText("停止中...")
+            self.record_btn.setText(_("停止中..."))
             self.pause_btn.setEnabled(False)
             self.tray_record_action.setEnabled(False)
             
             # 显示提示消息
             self.tray_icon.showMessage(
                 "Dayflow",
-                "正在保存数据并结束录制，请稍候...",
+                _("正在保存数据并结束录制，请稍候..."),
                 QSystemTrayIcon.Information,
                 3000  # 显示 3 秒
             )
@@ -1991,8 +1992,8 @@ class MainWindow(QMainWindow):
             if not config.API_KEY:
                 QMessageBox.warning(
                     self, 
-                    "提示", 
-                    "请先在设置中配置 API Key"
+                    _("提示"), 
+                    _("请先在设置中配置 API Key")
                 )
                 self._switch_page(2)
                 return
@@ -2001,7 +2002,7 @@ class MainWindow(QMainWindow):
             self._start_analysis()
             self._update_record_button(True)
             self.recording_indicator.set_recording(True)
-            self.tray_record_action.setText("⏹ 停止录制")
+            self.tray_record_action.setText(_("⏹ 停止录制"))
             self.pause_btn.setEnabled(True)
             self.tray_pause_action.setEnabled(True)
     
@@ -2028,16 +2029,16 @@ class MainWindow(QMainWindow):
         self._update_record_button(False)
         self.recording_indicator.set_recording(False)
         self.tray_record_action.setEnabled(True)
-        self.tray_record_action.setText("▶ 开始录制")
+        self.tray_record_action.setText(_("▶ 开始录制"))
         self.pause_btn.setEnabled(False)
-        self.pause_btn.setText("⏸ 暂停")
+        self.pause_btn.setText(_("⏸ 暂停"))
         self.tray_pause_action.setEnabled(False)
-        self.tray_pause_action.setText("⏸ 暂停录制")
+        self.tray_pause_action.setText(_("⏸ 暂停录制"))
         
         # 显示完成提示
         self.tray_icon.showMessage(
             "Dayflow",
-            "录制已停止，数据已保存 ✓",
+            _("录制已停止，数据已保存 ✓"),
             QSystemTrayIcon.Information,
             2000
         )
@@ -2050,15 +2051,15 @@ class MainWindow(QMainWindow):
         if self.recording_manager.is_paused:
             # 继续录制
             self.recording_manager.resume_recording()
-            self.pause_btn.setText("⏸ 暂停")
-            self.tray_pause_action.setText("⏸ 暂停录制")
+            self.pause_btn.setText(_("⏸ 暂停"))
+            self.tray_pause_action.setText(_("⏸ 暂停录制"))
             self.recording_indicator.set_recording(True)
             logger.info("录制已继续")
         else:
             # 暂停录制
             self.recording_manager.pause_recording()
-            self.pause_btn.setText("▶ 继续")
-            self.tray_pause_action.setText("▶ 继续录制")
+            self.pause_btn.setText(_("▶ 继续"))
+            self.tray_pause_action.setText(_("▶ 继续录制"))
             self.recording_indicator.set_recording(False)
             logger.info("录制已暂停")
     
@@ -2066,7 +2067,7 @@ class MainWindow(QMainWindow):
         """更新录制按钮状态"""
         t = get_theme()
         if recording:
-            self.record_btn.setText("⏹ 停止录制")
+            self.record_btn.setText(_("⏹ 停止录制"))
             self.record_btn.setStyleSheet(f"""
                 QPushButton {{
                     background-color: {t.error};
@@ -2081,7 +2082,7 @@ class MainWindow(QMainWindow):
                 }}
             """)
         else:
-            self.record_btn.setText("● 开始录制")
+            self.record_btn.setText(_("● 开始录制"))
             self.record_btn.setStyleSheet(f"""
                 QPushButton {{
                     background-color: {t.accent};
@@ -2183,7 +2184,7 @@ class MainWindow(QMainWindow):
         from PySide6.QtWidgets import QFileDialog
         
         if not cards:
-            QMessageBox.information(self, "提示", "当前日期没有数据可导出")
+            QMessageBox.information(self, _("提示"), _("当前日期没有数据可导出"))
             return
         
         # 选择保存路径
@@ -2203,9 +2204,9 @@ class MainWindow(QMainWindow):
                 writer = csv.writer(f)
                 # 写入表头
                 writer.writerow([
-                    '开始时间', '结束时间', '时长(分钟)', 
-                    '类别', '标题', '摘要', 
-                    '应用程序', '生产力评分'
+                    _('开始时间'), _('结束时间'), _('时长(分钟)'), 
+                    _('类别'), _('标题'), _('摘要'), 
+                    _('应用程序'), _('生产力评分')
                 ])
                 
                 # 写入数据
@@ -2222,11 +2223,11 @@ class MainWindow(QMainWindow):
                         f"{card.productivity_score:.0f}"
                     ])
             
-            QMessageBox.information(self, "成功", f"数据已导出到:\n{file_path}")
+            QMessageBox.information(self, _("成功"), _("数据已导出到:\n{file_path}").format(file_path=file_path))
             logger.info(f"导出 CSV 成功: {file_path}")
             
         except Exception as e:
-            QMessageBox.critical(self, "错误", f"导出失败: {e}")
+            QMessageBox.critical(self, _("错误"), _("导出失败: {e}").format(e=e))
             logger.error(f"导出 CSV 失败: {e}")
     
     def _show_window(self):
@@ -2240,7 +2241,7 @@ class MainWindow(QMainWindow):
         self.hide()
         self.tray_icon.showMessage(
             "Dayflow",
-            "应用已最小化到系统托盘",
+            _("应用已最小化到系统托盘"),
             QSystemTrayIcon.Information,
             2000
         )
@@ -2288,8 +2289,8 @@ class MainWindow(QMainWindow):
             # 询问用户
             reply = QMessageBox.question(
                 self,
-                "退出确认",
-                "确定要退出 Dayflow 吗？\n\n点击「否」将最小化到系统托盘。",
+                _("退出确认"),
+                _("确定要退出 Dayflow 吗？\n\n点击「否」将最小化到系统托盘。"),
                 QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel
             )
             

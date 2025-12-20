@@ -13,6 +13,7 @@ from typing import List, Optional, Tuple
 from dataclasses import dataclass
 
 import config
+from i18n import _
 
 logger = logging.getLogger(__name__)
 
@@ -40,10 +41,10 @@ class EmailService:
     def send_report(self, subject: str, html_content: str) -> tuple:
         """发送 HTML 报告邮件，返回 (成功, 错误信息)"""
         if not self.config.enabled:
-            return False, "邮件推送未启用"
+            return False, _("邮件推送未启用")
         
         if not all([self.config.sender_email, self.config.auth_code, self.config.receiver_email]):
-            return False, "邮箱配置不完整"
+            return False, _("邮箱配置不完整")
         
         try:
             # 创建邮件
@@ -79,15 +80,15 @@ class EmailService:
                     pass
             
         except smtplib.SMTPAuthenticationError as e:
-            error_msg = "授权码错误或SMTP服务未开启"
+            error_msg = _("授权码错误或SMTP服务未开启")
             logger.error(f"SMTP认证失败: {e}")
             return False, error_msg
         except smtplib.SMTPConnectError as e:
-            error_msg = "无法连接SMTP服务器，请检查网络"
+            error_msg = _("无法连接SMTP服务器，请检查网络")
             logger.error(f"SMTP连接失败: {e}")
             return False, error_msg
         except TimeoutError:
-            error_msg = "连接超时，请检查网络或端口是否被封锁"
+            error_msg = _("连接超时，请检查网络或端口是否被封锁")
             logger.error("SMTP连接超时")
             return False, error_msg
         except Exception as e:
@@ -229,20 +230,20 @@ class DeepAnalyzer:
         
         # 按时段汇总
         periods = {
-            '上午(6-12)': {'scores': [], 'minutes': 0},
-            '下午(12-18)': {'scores': [], 'minutes': 0},
-            '晚上(18-24)': {'scores': [], 'minutes': 0}
+            _('上午(6-12)'): {'scores': [], 'minutes': 0},
+            _('下午(12-18)'): {'scores': [], 'minutes': 0},
+            _('晚上(18-24)'): {'scores': [], 'minutes': 0}
         }
         for hour, data in hourly_data.items():
             if 6 <= hour < 12:
-                periods['上午(6-12)']['scores'].extend(data['scores'])
-                periods['上午(6-12)']['minutes'] += data['minutes']
+                periods[_('上午(6-12)')]['scores'].extend(data['scores'])
+                periods[_('上午(6-12)')]['minutes'] += data['minutes']
             elif 12 <= hour < 18:
-                periods['下午(12-18)']['scores'].extend(data['scores'])
-                periods['下午(12-18)']['minutes'] += data['minutes']
+                periods[_('下午(12-18)')]['scores'].extend(data['scores'])
+                periods[_('下午(12-18)')]['minutes'] += data['minutes']
             else:
-                periods['晚上(18-24)']['scores'].extend(data['scores'])
-                periods['晚上(18-24)']['minutes'] += data['minutes']
+                periods[_('晚上(18-24)')]['scores'].extend(data['scores'])
+                periods[_('晚上(18-24)')]['minutes'] += data['minutes']
         
         period_stats = {}
         for name, data in periods.items():
@@ -298,7 +299,7 @@ class DeepAnalyzer:
         cat_data = defaultdict(lambda: {'scores': [], 'minutes': 0, 'sessions': 0})
         
         for session in self.merged_sessions:
-            cat = session['category'] or '其他'
+            cat = session['category'] or _('其他')
             if session['avg_score'] > 0:
                 cat_data[cat]['scores'].append(session['avg_score'])
             cat_data[cat]['minutes'] += session['duration']
@@ -357,7 +358,7 @@ class DeepAnalyzer:
         switching = self._analyze_switching()
         
         if not focus.get('has_data'):
-            return {'type': '数据不足', 'description': '记录较少，无法分类'}
+            return {'type': _('数据不足'), 'description': _('记录较少，无法分类')}
         
         deep_count = focus.get('deep_count', 0)
         fragment_percent = focus.get('fragment_percent', 0)
@@ -365,22 +366,22 @@ class DeepAnalyzer:
         
         # 基于数据的客观分类
         if deep_count >= 2 and fragment_percent < 30:
-            return {'type': '深度工作日', 'indicators': f'{deep_count}次深度工作，碎片仅{fragment_percent}%'}
+            return {'type': _('深度工作日'), 'indicators': _('{deep_count}次深度工作，碎片仅{fragment_percent}%').format(deep_count=deep_count, fragment_percent=fragment_percent)}
         elif switch_count >= 8:
-            return {'type': '多任务切换日', 'indicators': f'切换{switch_count}次'}
+            return {'type': _('多任务切换日'), 'indicators': _('切换{switch_count}次').format(switch_count=switch_count)}
         elif fragment_percent > 60:
-            return {'type': '碎片化日', 'indicators': f'{fragment_percent}%为碎片时间'}
+            return {'type': _('碎片化日'), 'indicators': _('{fragment_percent}%为碎片时间').format(fragment_percent=fragment_percent)}
         elif deep_count == 0 and focus.get('avg_duration', 0) < 20:
-            return {'type': '轻量日', 'indicators': f'平均每段{focus.get("avg_duration", 0)}分钟'}
+            return {'type': _('轻量日'), 'indicators': _('平均每段{avg_duration}分钟').format(avg_duration=focus.get('avg_duration', 0))}
         else:
-            return {'type': '常规日', 'indicators': '节奏正常'}
+            return {'type': _('常规日'), 'indicators': _('节奏正常')}
 
 
 class AICommentGenerator:
     """AI 点评生成器 - 基于深度数据"""
     
     # 朋友式点评 Prompt
-    COMMENT_PROMPT = """你是用户的一个懂时间管理的朋友。下面是他今天的时间记录数据分析，请基于这些【客观数据】写一段点评。
+    COMMENT_PROMPT = _("""你是用户的一个懂时间管理的朋友。下面是他今天的时间记录数据分析，请基于这些【客观数据】写一段点评。
 
 【数据说明】
 - "工作段"是指连续做同一类事情的时间段（如：连续60分钟编程=1个编程工作段）
@@ -420,10 +421,10 @@ class AICommentGenerator:
 3. 基于数据特点给一个具体可行的建议
 4. 字数100-150字
 5. 禁止：猜测原因、说"可能"、空洞的鼓励语
-6. 直接输出，不要标题"""
+6. 直接输出，不要标题""")
 
     # 专业深度分析 Prompt
-    ANALYSIS_PROMPT = """你是一位专业的时间管理与行为分析专家。请基于以下用户今日的活动数据，撰写一份专业的深度分析报告。
+    ANALYSIS_PROMPT = _("""你是一位专业的时间管理与行为分析专家。请基于以下用户今日的活动数据，撰写一份专业的深度分析报告。
 
 【数据说明】
 - "工作段"是指连续做同一类事情的时间段（系统自动识别并合并）
@@ -473,7 +474,7 @@ class AICommentGenerator:
 - 分析要有数据支撑，避免空泛
 - 总字数300-500字
 - 使用 Markdown 格式，包含小标题
-- 直接输出分析内容，不要有任何前言"""
+- 直接输出分析内容，不要有任何前言""")
 
     def __init__(self, storage=None):
         self.storage = storage
@@ -507,7 +508,7 @@ class AICommentGenerator:
             categories_str = "、".join([
                 f"{cat}({m//60}h{m%60}m)" 
                 for cat, m in stats['categories'][:5]
-            ]) if stats['categories'] else "无记录"
+            ]) if stats['categories'] else _("无记录")
             
             # 格式化深度分析数据
             focus = deep_analysis.get('focus', {})
@@ -518,50 +519,81 @@ class AICommentGenerator:
             
             # 专注力数据
             if focus.get('has_data'):
-                focus_data = f"""- 总共 {focus['total_sessions']} 段工作
-- 碎片(<15分钟): {focus['fragment_count']}段，占{focus['fragment_percent']}%
-- 深度工作(>60分钟): {focus['deep_count']}段，共{focus['deep_total_mins']}分钟
-- 最长一段: {focus['max_session']['duration']}分钟（{focus['max_session']['category']}，{focus['max_session']['time']}）
-- 平均每段: {focus['avg_duration']}分钟"""
+                focus_data = _("""- 总共 {total_sessions} 段工作
+- 碎片(<15分钟): {fragment_count}段，占{fragment_percen}%
+- 深度工作(>60分钟): {deep_count}段，共{deep_total_mins}分钟
+- 最长一段: {max_session_duration}分钟（{max_session_category}，{max_session_time}）
+- 平均每段: {avg_duration}分钟""").format(
+                        total_sessions=focus['total_sessions'],
+                        fragment_count=focus['fragment_count'], 
+                        fragment_percent=focus['fragment_percent'],
+                        deep_count=focus['deep_count'],
+                        deep_total_mins=focus['deep_total_mins'],
+                        max_session_duration=focus['max_session']['duration'],
+                        max_session_category=focus['max_session']['category'],
+                        max_session_time=focus['max_session']['time'],
+                        avg_duration=focus['avg_duration']
+)
             else:
-                focus_data = "数据不足"
+                focus_data = _("数据不足")
             
             # 节奏数据
             if rhythm.get('has_data'):
-                period_lines = [f"- {name}: 均分{data['avg_score']}，共{data['total_mins']}分钟" 
+                period_lines = [_("- {name}: 均分{avg_score}，共{total_mins}分钟").format(
+                                    name=name,
+                                    avg_score=data['avg_score'],
+                                    total_mins=data['total_mins'],
+                                )
                                for name, data in rhythm.get('periods', {}).items()]
-                rhythm_data = "\n".join(period_lines) if period_lines else "数据不足"
-                rhythm_data += f"\n- 效率最高时段: {rhythm['peak_hour']}点（{rhythm['peak_score']}分）"
-                rhythm_data += f"\n- 效率最低时段: {rhythm['low_hour']}点（{rhythm['low_score']}分）"
+                rhythm_data = "\n".join(period_lines) if period_lines else _("数据不足")
+                rhythm_data += _("\n- 效率最高时段: {peak_hour}点（{peak_score}分）").format(
+                                    peak_hour=rhythm['peak_hour'],
+                                    peak_score=rhythm['peak_score']
+                                )
+                rhythm_data += _("\n- 效率最低时段: {low_hour}点（{low_score}分）").format(
+                                    low_hour=rhythm['low_hour'],
+                                    low_score=rhythm['low_score']
+                                )
             else:
-                rhythm_data = "数据不足"
+                rhythm_data = _("数据不足")
             
             # 切换数据
             if switching.get('has_data'):
-                switching_data = f"- 总切换次数: {switching['total_switches']}次"
+                switching_data = _("- 总切换次数: {total_switches}次").format(total_switches=switching['total_switches'])
                 if switching.get('common_patterns'):
                     patterns = [f"{p[0]}({p[1]}次)" for p in switching['common_patterns']]
-                    switching_data += f"\n- 常见切换: {', '.join(patterns)}"
+                    switching_data += _("\n- 常见切换: {patterns}").format(patterns=', '.join(patterns))
             else:
-                switching_data = "切换较少或无数据"
+                switching_data = _("切换较少或无数据")
             
             # 类别数据
             if categories.get('has_data'):
                 cat_lines = []
                 for cat, data in categories.get('stats', {}).items():
-                    cat_lines.append(f"- {cat}: 均分{data['avg_score']}，{data['session_count']}段共{data['total_mins']}分钟")
+                    cat_lines.append(_("- {cat}: 均分{avg_score}，{session_count}段共{total_mins}分钟").format(
+                                        cat=cat,
+                                        avg_score=data['avg_score'],
+                                        session_count=data['session_count'],
+                                        total_mins=data['total_mins']
+                                     ))
                 category_data = "\n".join(cat_lines[:5])
                 if categories.get('best') and categories.get('worst') and categories['best'] != categories['worst']:
-                    category_data += f"\n- 效率最高: {categories['best']}，最低: {categories['worst']}"
+                    category_data += _("\n- 效率最高: {best}，最低: {worst}").format(
+                        best=categories['best'],
+                        worst=categories['worst'],
+                    )
             else:
-                category_data = "数据不足"
+                category_data = _("数据不足")
             
             # 今日类型
-            day_type_str = f"{day_type.get('type', '常规日')}（{day_type.get('indicators', '')}）"
+            day_type_str = f"{day_type.get('type', _('常规日'))}（{day_type.get('indicators', '')}）"
             
             prompt = self.COMMENT_PROMPT.format(
                 date=stats['date'],
-                recorded_time=f"{recorded_h}小时{recorded_m}分钟",
+                recorded_time=_("{recorded_h}小时{recorded_m}分钟").format(
+                    recorded_h=recorded_h,
+                    recorded_m=recorded_m
+                ),
                 score=stats['score'],
                 categories=categories_str,
                 focus_data=focus_data,
@@ -600,7 +632,7 @@ class AICommentGenerator:
             categories_str = "、".join([
                 f"{cat}({m//60}h{m%60}m)" 
                 for cat, m in stats['categories'][:5]
-            ]) if stats['categories'] else "无记录"
+            ]) if stats['categories'] else _("无记录")
             
             # 格式化深度分析数据
             focus = deep_analysis.get('focus', {})
@@ -611,58 +643,78 @@ class AICommentGenerator:
             
             # 专注力数据
             if focus.get('has_data'):
-                focus_data = f"""- 工作段数量: {focus['total_sessions']}段
-- 碎片工作(<15min): {focus['fragment_count']}段，占比{focus['fragment_percent']}%
-- 深度工作(>60min): {focus['deep_count']}段，累计{focus['deep_total_mins']}分钟
-- 最长单次专注: {focus['max_session']['duration']}分钟（{focus['max_session']['category']}，{focus['max_session']['time']}开始）
-- 平均工作段时长: {focus['avg_duration']}分钟"""
+                focus_data = _("""- 工作段数量: {total_sessions}段
+- 碎片工作(<15min): {fragment_count}段，占比{fragment_percent}%
+- 深度工作(>60min): {deep_count}段，累计{deep_total_mins}分钟
+- 最长单次专注: {max_session_duration}分钟（{max_session_category}，{max_session_time}开始）
+- 平均工作段时长: {avg_duration}分钟""").format(
+                        total_sessions=focus['total_sessions'],
+                        fragment_count=focus['fragment_count'],
+                        fragment_percent=focus['fragment_percent'],
+                        deep_count=focus['deep_count'],
+                        deep_total_mins=focus['deep_total_mins'],
+                        max_session_duration=focus['max_session']['duration'],
+                        max_session_category=focus['max_session']['category'],
+                        max_session_time=focus['max_session']['time'],
+                        avg_duration=focus['avg_duration']
+                )
             else:
-                focus_data = "数据不足，无法分析"
+                focus_data = _("数据不足，无法分析")
             
             # 节奏数据
             if rhythm.get('has_data'):
-                period_lines = [f"- {name}: 效率均分{data['avg_score']}分，工作{data['total_mins']}分钟，{data['session_count']}个工作段" 
+                period_lines = [_("- {name}: 效率均分{avg_score}分，工作{total_mins}分钟，{session_count}个工作段").format(
+                                    name=name,
+                                    avg_score=data['avg_score'],
+                                    total_mins=data['total_mins'],
+                                    session_count=data['session_count']
+                                )
                                for name, data in rhythm.get('periods', {}).items()]
-                rhythm_data = "\n".join(period_lines) if period_lines else "数据不足"
-                rhythm_data += f"\n- 效率峰值: {rhythm['peak_hour']}:00（{rhythm['peak_score']}分）"
-                rhythm_data += f"\n- 效率低谷: {rhythm['low_hour']}:00（{rhythm['low_score']}分）"
-                rhythm_data += f"\n- 峰谷差值: {rhythm['peak_score'] - rhythm['low_score']}分"
+                rhythm_data = "\n".join(period_lines) if period_lines else _("数据不足")
+                rhythm_data += f"\n- {_("效率峰值: {peak_hour}:00（{peak_score}分").format(peak_hour=rhythm['peak_hour'], peak_score=rhythm['peak_score'])}）"
+                rhythm_data += f"\n- {_("效率低谷: {low_hour}:00（{low_score}分").format(low_hour=rhythm['low_hour'], low_score=rhythm['low_score'])}）"
+                rhythm_data += f"\n- {_("峰谷差值: {score}分").format(score=rhythm['peak_score'] - rhythm['low_score'])}"
             else:
-                rhythm_data = "数据不足，无法分析"
+                rhythm_data = _("数据不足，无法分析")
             
             # 切换数据
             if switching.get('has_data'):
-                switching_data = f"- 类别切换总次数: {switching['total_switches']}次"
+                switching_data = f"- {_("类别切换总次数")}: {switching['total_switches']}次"
                 if switching.get('common_patterns'):
-                    patterns = [f"{p[0]}（{p[1]}次）" for p in switching['common_patterns']]
-                    switching_data += f"\n- 高频切换模式: {', '.join(patterns)}"
+                    patterns = [_("{p0}（{p1}次）".format(p0=p[0], p1=[1])) for p in switching['common_patterns']]
+                    switching_data += f"\n- {_("高频切换模式")}: {', '.join(patterns)}"
             else:
-                switching_data = "切换极少或无数据"
+                switching_data = _("切换极少或无数据")
             
             # 类别数据
             if categories.get('has_data'):
                 cat_lines = []
                 for cat, data in sorted(categories.get('stats', {}).items(), 
                                         key=lambda x: x[1]['total_mins'], reverse=True):
-                    variance_text = f"，波动±{data['score_variance']}" if data['score_variance'] > 0 else ""
-                    cat_lines.append(f"- {cat}: 效率{data['avg_score']}分{variance_text}，{data['session_count']}段共{data['total_mins']}分钟")
+                    variance_text = f"，{_("波动±{score_variance}").format(score_variance=data['score_variance'])}" if data['score_variance'] > 0 else ""
+                    cat_lines.append(f"- {cat}: {_("效率{avg_score}分{variance_text}，{session_count}段共{total_mins}分钟").format(
+                                avg_score=data['avg_score'],
+                                variance_text=variance_text,
+                                session_count=data['session_count'],
+                                total_mins=data['total_mins']
+                        )}")
                 category_data = "\n".join(cat_lines[:6])
                 if categories.get('best') and categories.get('worst') and categories['best'] != categories['worst']:
                     best_data = categories['stats'].get(categories['best'], {})
                     worst_data = categories['stats'].get(categories['worst'], {})
                     diff = best_data.get('avg_score', 0) - worst_data.get('avg_score', 0)
-                    category_data += f"\n- 效率最高: {categories['best']}（{best_data.get('avg_score', 0)}分）"
-                    category_data += f"\n- 效率最低: {categories['worst']}（{worst_data.get('avg_score', 0)}分）"
-                    category_data += f"\n- 类别效率差: {diff}分"
+                    category_data += f"\n- {_("效率最高: {best}（{avg_score}分）").format(best=categories['best'], avg_score=best_data.get('avg_score', 0))}"
+                    category_data += f"\n- {_("效率最低: {worst}（{avg_score}分）").format(worst=categories['worst'], avg_score=worst_data.get('avg_score', 0))}"
+                    category_data += f"\n- {_("类别效率差: {diff}分").format(diff=diff)}"
             else:
-                category_data = "数据不足，无法分析"
+                category_data = _("数据不足，无法分析")
             
             # 今日类型
-            day_type_str = f"{day_type.get('type', '常规日')}（{day_type.get('indicators', '')}）"
+            day_type_str = f"{day_type.get('type', _('常规日'))}（{day_type.get('indicators', '')}）"
             
             prompt = self.ANALYSIS_PROMPT.format(
                 date=stats['date'],
-                recorded_time=f"{recorded_h}小时{recorded_m}分钟",
+                recorded_time=_("{recorded_h}小时{recorded_m}分钟").format(recorded_h=recorded_h, recorded_m=recorded_m),
                 score=stats['score'],
                 categories=categories_str,
                 focus_data=focus_data,
@@ -686,28 +738,28 @@ class AICommentGenerator:
         switching = deep_analysis.get('switching', {})
         day_type = deep_analysis.get('day_type', {})
         
-        lines = ["### 行为模式"]
+        lines = [f"### {_('行为模式')}"]
         
-        dtype = day_type.get('type', '常规日')
-        lines.append(f"今日属于 **{dtype}**。{day_type.get('indicators', '')}")
+        dtype = day_type.get('type', _('常规日'))
+        lines.append(f"{_('今日属于')} **{dtype}**。{day_type.get('indicators', '')}")
         
         if focus.get('has_data'):
             lines.append("")
-            lines.append("### 专注力表现")
+            lines.append(f"### {_("专注力表现")}")
             if focus.get('deep_count', 0) > 0:
-                lines.append(f"- 完成了 {focus['deep_count']} 次深度工作（>60分钟），累计 {focus['deep_total_mins']} 分钟")
-            lines.append(f"- 最长专注 {focus.get('max_session', {}).get('duration', 0)} 分钟")
-            lines.append(f"- 碎片工作占比 {focus.get('fragment_percent', 0)}%")
+                lines.append(f"- {_("完成了 {deep_count} 次深度工作（>60分钟），累计 {deep_total_mins} 分钟").format(deep_count=focus['deep_count'], deep_total_mins=focus['deep_total_mins'])}")
+            lines.append(f"- {_("最长专注 {duration} 分钟").format(duration=focus.get('max_session', {}).get('duration', 0))}")
+            lines.append(f"- {_("碎片工作占比 {fragment_percent}%")}".format(fragment_percent=focus.get('fragment_percent', 0)))
         
         if rhythm.get('has_data'):
             lines.append("")
-            lines.append("### 时段效率")
-            lines.append(f"- 效率峰值在 {rhythm.get('peak_hour', '')}:00（{rhythm.get('peak_score', 0)}分）")
-            lines.append(f"- 效率低谷在 {rhythm.get('low_hour', '')}:00（{rhythm.get('low_score', 0)}分）")
+            lines.append(f"### {_("时段效率")}")
+            lines.append(f"- {_("效率峰值在 {peak_hour}:00（{peak_score}分）").format(peak_hour=rhythm.get('peak_hour', 0), peak_score=rhythm.get('peak_score', 0))}")
+            lines.append(f"- {_("效率低谷在 {low_hour}:00（{low_score}分）").format(low_hour=rhythm.get('low_hour', 0), low_score=rhythm.get('low_score', 0))}")
         
         if switching.get('has_data') and switching.get('total_switches', 0) > 0:
             lines.append("")
-            lines.append("### 任务切换")
+            lines.append(f"### {_("任务切换")}")
             lines.append(f"- 今日切换 {switching['total_switches']} 次")
         
         return "\n".join(lines)
@@ -760,24 +812,23 @@ class AICommentGenerator:
         
         # 基于今日类型
         dtype = day_type.get('type', '')
-        if dtype == '深度工作日':
-            parts.append(f"今天是个深度工作日，{focus.get('deep_count', 0)}段超过60分钟的专注时间")
-        elif dtype == '碎片化日':
-            parts.append(f"今天时间比较碎片化，{focus.get('fragment_percent', 0)}%是短时间片段")
-        elif dtype == '多任务切换日':
-            parts.append("今天切换了不少任务类型，上下文切换成本不小")
+        if dtype == _('深度工作日'):
+            parts.append(_("今天是个深度工作日，{deep_count}段超过60分钟的专注时间").format(deep_count=focus.get('deep_count', 0)))
+        elif dtype == _('碎片化日'):
+            parts.append(_("今天时间比较碎片化，{fragment_percent}%是短时间片段").format(fragment_percent=focus.get('fragment_percent', 0)))
+        elif dtype == _('多任务切换日'):
+            parts.append(_("今天切换了不少任务类型，上下文切换成本不小"))
         else:
             if score >= 70:
-                parts.append(f"今天{recorded_h}小时的工作，综合效率{score}分，节奏不错")
+                parts.append(_("今天{recorded_h}小时的工作，综合效率{score}分，节奏不错").format(recorded_h=recorded_h, score=score))
             else:
-                top_cat = categories[0][0] if categories else "工作"
-                parts.append(f"今天主要在「{top_cat}」上花了时间")
+                top_cat = categories[0][0] if categories else _("工作")
+                parts.append(_("今天主要在「{top_cat}」上花了时间").format(top_cat=top_cat))
         
         # 加一个数据亮点
         if focus.get('has_data') and focus.get('max_session'):
             ms = focus['max_session']
-            parts.append(f"最长的一段是{ms['duration']}分钟的{ms['category']}（{ms['time']}开始）")
-        
+            parts.append(_("最长的一段是{duration}分钟的{category}（{time}开始）").format(duration=ms['duration'], category=ms['category'], time=ms['time']))        
         return "。".join(parts) + " ✨"
 
 
@@ -801,7 +852,7 @@ class ReportGenerator:
         total_minutes = 0
         
         for card in cards:
-            category = card.category or "其他"
+            category = card.category or _("其他")
             minutes = card.duration_minutes
             category_stats[category] = category_stats.get(category, 0) + minutes
             total_minutes += minutes
@@ -824,7 +875,7 @@ class ReportGenerator:
         
         # 构建 AI 使用的统计数据
         ai_stats = {
-            'date': date.strftime("%Y年%m月%d日"),
+            'date': date.strftime(_("%Y年%m月%d日")),
             'recorded_minutes': int(total_minutes),
             'score': avg_score,
             'categories': [(cat, int(mins)) for cat, mins in sorted_stats]
@@ -835,7 +886,7 @@ class ReportGenerator:
             ai_comment = self.ai_generator.generate_comment(ai_stats, deep_analysis)
         except Exception as e:
             logger.warning(f"AI 点评生成失败: {e}")
-            ai_comment = "今天的数据已记录完成 ✨"
+            ai_comment = _("今天的数据已记录完成 ✨")
         
         # 生成专业深度分析报告
         try:
@@ -851,19 +902,19 @@ class ReportGenerator:
                     total_minutes: int, score: int, deep_analysis: dict, 
                     ai_comment: str, expert_analysis: str = "") -> str:
         """构建 HTML 邮件内容（含深度分析和专业报告）"""
-        date_str = date.strftime("%Y年%m月%d日")
+        date_str = date.strftime(_("%Y年%m月%d日"))
         hours = int(total_minutes // 60)
         mins = int(total_minutes % 60)
         
         # 类别颜色
         category_colors = {
-            "工作": "#4F46E5", "Work": "#4F46E5",
-            "学习": "#059669", "Study": "#059669",
-            "编程": "#6366F1", "Programming": "#6366F1",
-            "娱乐": "#DC2626", "Entertainment": "#DC2626",
-            "休息": "#F59E0B", "Rest": "#F59E0B",
-            "社交": "#EC4899", "Social": "#EC4899",
-            "其他": "#78716C", "Other": "#78716C",
+            _("工作"): "#4F46E5", "Work": "#4F46E5",
+            _("学习"): "#059669", "Study": "#059669",
+            _("编程"): "#6366F1", "Programming": "#6366F1",
+            _("娱乐"): "#DC2626", "Entertainment": "#DC2626",
+            _("休息"): "#F59E0B", "Rest": "#F59E0B",
+            _("社交"): "#EC4899", "Social": "#EC4899",
+            _("其他"): "#78716C", "Other": "#78716C",
         }
         
         # 构建时间分布条
@@ -887,13 +938,13 @@ class ReportGenerator:
         
         # 效率评价
         if score >= 80:
-            score_emoji, score_text, score_color = "🌟", "非常高效", "#059669"
+            score_emoji, score_text, score_color = "🌟", _("非常高效"), "#059669"
         elif score >= 60:
-            score_emoji, score_text, score_color = "👍", "表现不错", "#4F46E5"
+            score_emoji, score_text, score_color = "👍", _("表现不错"), "#4F46E5"
         elif score >= 40:
-            score_emoji, score_text, score_color = "💪", "稳步前进", "#F59E0B"
+            score_emoji, score_text, score_color = "💪", _("稳步前进"), "#F59E0B"
         else:
-            score_emoji, score_text, score_color = "🎯", "明天更好", "#6B7280"
+            score_emoji, score_text, score_color = "🎯", _("明天更好"), "#6B7280"
         
         # 提取深度分析数据
         focus = deep_analysis.get('focus', {})
@@ -917,7 +968,7 @@ class ReportGenerator:
     <div style="max-width: 640px; margin: 0 auto; padding: 20px;">
         <!-- 头部 -->
         <div style="background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%); border-radius: 16px 16px 0 0; padding: 24px; text-align: center;">
-            <h1 style="margin: 0; color: white; font-size: 22px; font-weight: 600;">📊 Dayflow 深度分析报告</h1>
+            <h1 style="margin: 0; color: white; font-size: 22px; font-weight: 600;">📊 Dayflow {_('深度分析报告')}</h1>
             <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">{date_str}</p>
             <div style="margin-top: 12px; display: inline-block; background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px;">
                 <span style="color: white; font-size: 13px;">{day_type.get('type', '常规日')}</span>
@@ -931,7 +982,7 @@ class ReportGenerator:
             <div style="display: flex; gap: 12px; margin-bottom: 20px;">
                 <div style="flex: 1; background-color: #F0F9FF; border-radius: 10px; padding: 14px; text-align: center;">
                     <div style="font-size: 24px; font-weight: 700; color: #0369A1;">{hours}h {mins}m</div>
-                    <div style="color: #6B7280; font-size: 12px; margin-top: 2px;">记录时长</div>
+                    <div style="color: #6B7280; font-size: 12px; margin-top: 2px;">{_('记录时长')}</div>
                 </div>
                 <div style="flex: 1; background-color: #F0FDF4; border-radius: 10px; padding: 14px; text-align: center;">
                     <div style="font-size: 24px; font-weight: 700; color: {score_color};">{score_emoji} {score}</div>
@@ -939,16 +990,16 @@ class ReportGenerator:
                 </div>
                 <div style="flex: 1; background-color: #FEF3C7; border-radius: 10px; padding: 14px; text-align: center;">
                     <div style="font-size: 24px; font-weight: 700; color: #D97706;">{focus.get('deep_count', 0)}</div>
-                    <div style="color: #6B7280; font-size: 12px; margin-top: 2px;">深度工作</div>
+                    <div style="color: #6B7280; font-size: 12px; margin-top: 2px;">{_('深度工作')}</div>
                 </div>
             </div>
             
             <!-- 时间分布 -->
             <div style="margin-bottom: 20px;">
                 <h2 style="font-size: 15px; font-weight: 600; color: #111827; margin: 0 0 12px 0;">
-                    📈 时间分布
+                    {_('📈 时间分布')}
                 </h2>
-                {stats_html if stats_html else '<div style="color: #9CA3AF; text-align: center; padding: 20px;">暂无数据</div>'}
+                {stats_html if stats_html else f'<div style="color: #9CA3AF; text-align: center; padding: 20px;">{_("暂无数据")}</div>'}
             </div>
             
             <!-- 分隔线 -->
@@ -957,7 +1008,7 @@ class ReportGenerator:
             <!-- 深度分析 -->
             <div style="margin-bottom: 20px;">
                 <h2 style="font-size: 15px; font-weight: 600; color: #111827; margin: 0 0 16px 0;">
-                    🔍 深度分析
+                    {_('🔍 深度分析')}
                 </h2>
                 {deep_html}
             </div>
@@ -968,7 +1019,7 @@ class ReportGenerator:
             <!-- AI 点评 -->
             <div style="background: linear-gradient(135deg, #EDE9FE 0%, #DDD6FE 100%); border-radius: 12px; padding: 16px;">
                 <h2 style="font-size: 15px; font-weight: 600; color: #5B21B6; margin: 0 0 10px 0;">
-                    💬 今日洞察
+                    {_('💬 今日洞察')}
                 </h2>
                 <p style="margin: 0; color: #4C1D95; font-size: 14px; line-height: 1.8;">
                     {ai_comment}
@@ -980,7 +1031,7 @@ class ReportGenerator:
         
         <!-- 页脚 -->
         <div style="text-align: center; padding: 16px; color: #9CA3AF; font-size: 11px;">
-            由 Dayflow 自动生成 · {datetime.now().strftime("%H:%M")}
+            {_('由 Dayflow 自动生成')} · {datetime.now().strftime("%H:%M")}
         </div>
     </div>
 </body>
@@ -998,24 +1049,24 @@ class ReportGenerator:
             max_s = focus.get('max_session', {})
             focus_html = f"""
             <div style="background: #F8FAFC; border-radius: 10px; padding: 14px; margin-bottom: 12px;">
-                <div style="font-weight: 600; color: #334155; font-size: 13px; margin-bottom: 10px;">🎯 专注力数据</div>
+                <div style="font-weight: 600; color: #334155; font-size: 13px; margin-bottom: 10px;">{_('🎯 专注力数据')}</div>
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                     <div style="background: white; border: 1px solid #E2E8F0; border-radius: 6px; padding: 8px 12px; flex: 1; min-width: 120px;">
-                        <div style="font-size: 18px; font-weight: 600; color: #0F172A;">{focus.get('max_session', {}).get('duration', 0)}分钟</div>
-                        <div style="font-size: 11px; color: #64748B;">最长专注</div>
+                        <div style="font-size: 18px; font-weight: 600; color: #0F172A;">{_('{duration}分钟').format(duration=focus.get('max_session', {}).get('duration', 0))}</div>
+                        <div style="font-size: 11px; color: #64748B;">{_('最长专注')}</div>
                     </div>
                     <div style="background: white; border: 1px solid #E2E8F0; border-radius: 6px; padding: 8px 12px; flex: 1; min-width: 120px;">
-                        <div style="font-size: 18px; font-weight: 600; color: #0F172A;">{focus.get('deep_total_mins', 0)}分钟</div>
-                        <div style="font-size: 11px; color: #64748B;">深度工作(>60min)</div>
+                        <div style="font-size: 18px; font-weight: 600; color: #0F172A;">{_('{deep_total_mins}分钟').format(deep_total_mins=focus.get('deep_total_mins', 0))}</div>
+                        <div style="font-size: 11px; color: #64748B;">{_('深度工作(>60min)')}</div>
                     </div>
                     <div style="background: white; border: 1px solid #E2E8F0; border-radius: 6px; padding: 8px 12px; flex: 1; min-width: 120px;">
                         <div style="font-size: 18px; font-weight: 600; color: {'#DC2626' if focus.get('fragment_percent', 0) > 50 else '#0F172A'};">{focus.get('fragment_percent', 0)}%</div>
-                        <div style="font-size: 11px; color: #64748B;">碎片占比(<15min)</div>
+                        <div style="font-size: 11px; color: #64748B;">{_('碎片占比(<15min)')}</div>
                     </div>
                 </div>
                 <div style="margin-top: 10px; font-size: 12px; color: #64748B;">
-                    共 {focus.get('total_sessions', 0)} 段工作 · 平均每段 {focus.get('avg_duration', 0)} 分钟
-                    {f" · 最长: {max_s.get('category', '')} ({max_s.get('time', '')})" if max_s.get('category') else ''}
+                    {_("共 {total_sessions} 段工作 · 平均每段 {avg_duration} 分钟 · 最长: {category} ({time})").format(total_sessions=focus.get('total_sessions', 0), avg_duration=focus.get('avg_duration', 0))}
+                    {_("").format(category=max_s.get('category', ''), time=max_s.get('time', '')) if max_s.get('category') else ''}
                 </div>
             </div>"""
             sections.append(focus_html)
@@ -1029,15 +1080,15 @@ class ReportGenerator:
             for name, data in periods.items():
                 score = data.get('avg_score', 0)
                 bar_width = (score / max_score * 100) if max_score > 0 else 0
-                is_peak = (rhythm.get('peak_hour', -1) >= 6 and rhythm.get('peak_hour', -1) < 12 and '上午' in name) or \
-                         (rhythm.get('peak_hour', -1) >= 12 and rhythm.get('peak_hour', -1) < 18 and '下午' in name) or \
+                is_peak = (rhythm.get('peak_hour', -1) >= 6 and rhythm.get('peak_hour', -1) < 12 and _('上午') in name) or \
+                         (rhythm.get('peak_hour', -1) >= 12 and rhythm.get('peak_hour', -1) < 18 and _('下午') in name) or \
                          (rhythm.get('peak_hour', -1) >= 18 and '晚上' in name)
                 
                 rhythm_bars += f"""
                 <div style="margin-bottom: 8px;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
                         <span style="font-size: 12px; color: #374151;">{name.split('(')[0]} {'⭐' if is_peak else ''}</span>
-                        <span style="font-size: 12px; color: #6B7280;">{score}分 · {data.get('total_mins', 0)}分钟</span>
+                        <span style="font-size: 12px; color: #6B7280;">{_('{score}分 · {total_mins}分钟').format(score=score, total_mins=data.get('total_mins', 0))}</span>
                     </div>
                     <div style="background: #E5E7EB; border-radius: 3px; height: 8px;">
                         <div style="background: {'#10B981' if score >= 70 else '#F59E0B' if score >= 50 else '#EF4444'}; width: {bar_width}%; height: 100%; border-radius: 3px;"></div>
@@ -1046,11 +1097,15 @@ class ReportGenerator:
             
             rhythm_html = f"""
             <div style="background: #F8FAFC; border-radius: 10px; padding: 14px; margin-bottom: 12px;">
-                <div style="font-weight: 600; color: #334155; font-size: 13px; margin-bottom: 10px;">⏰ 时段效率</div>
+                <div style="font-weight: 600; color: #334155; font-size: 13px; margin-bottom: 10px;">{_('⏰ 时段效率')}</div>
                 {rhythm_bars}
                 <div style="margin-top: 8px; font-size: 12px; color: #64748B;">
-                    效率峰值: {rhythm.get('peak_hour', '')}:00 ({rhythm.get('peak_score', 0)}分) · 
-                    低谷: {rhythm.get('low_hour', '')}:00 ({rhythm.get('low_score', 0)}分)
+                    {('效率峰值: {peak_hour}:00 ({peak_score}分) · 低谷: {low_hour}:00 ({low_score}分)').format(
+                        peak_hour=rhythm.get('peak_hour', ''),
+                        peak_score=rhythm.get('peak_score', 0),
+                        low_hour=rhythm.get('low_hour', ''),
+                        low_score=rhythm.get('low_score', 0),
+                    )}
                 </div>
             </div>"""
             sections.append(rhythm_html)
@@ -1059,24 +1114,24 @@ class ReportGenerator:
         if switching.get('has_data') and switching.get('total_switches', 0) > 0:
             switch_count = switching.get('total_switches', 0)
             switch_color = '#10B981' if switch_count <= 3 else '#F59E0B' if switch_count <= 6 else '#EF4444'
-            switch_text = '非常聚焦' if switch_count <= 3 else '节奏正常' if switch_count <= 6 else '切换频繁'
+            switch_text = _('非常聚焦') if switch_count <= 3 else _('节奏正常') if switch_count <= 6 else _('切换频繁')
             
             patterns = switching.get('common_patterns', [])
             pattern_str = " · ".join([f"{p[0]}" for p in patterns[:2]]) if patterns else ""
             
             switch_html = f"""
             <div style="background: #F8FAFC; border-radius: 10px; padding: 14px; margin-bottom: 12px;">
-                <div style="font-weight: 600; color: #334155; font-size: 13px; margin-bottom: 10px;">🔄 任务切换</div>
+                <div style="font-weight: 600; color: #334155; font-size: 13px; margin-bottom: 10px;">{_('🔄 任务切换')}</div>
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <div style="background: {switch_color}; color: white; font-size: 20px; font-weight: 700; padding: 12px 20px; border-radius: 8px;">
                         {switch_count}
                     </div>
                     <div>
                         <div style="font-size: 14px; font-weight: 500; color: #0F172A;">{switch_text}</div>
-                        <div style="font-size: 12px; color: #64748B;">今日类别切换次数</div>
+                        <div style="font-size: 12px; color: #64748B;">{_('今日类别切换次数')}</div>
                     </div>
                 </div>
-                {f'<div style="margin-top: 8px; font-size: 12px; color: #64748B;">常见切换: {pattern_str}</div>' if pattern_str else ''}
+                {f'<div style="margin-top: 8px; font-size: 12px; color: #64748B;">{_('常见切换:')} {pattern_str}</div>' if pattern_str else ''}
             </div>"""
             sections.append(switch_html)
         
@@ -1092,25 +1147,30 @@ class ReportGenerator:
                 
                 cat_html = f"""
                 <div style="background: #F8FAFC; border-radius: 10px; padding: 14px;">
-                    <div style="font-weight: 600; color: #334155; font-size: 13px; margin-bottom: 10px;">📊 类别效率对比</div>
+                    <div style="font-weight: 600; color: #334155; font-size: 13px; margin-bottom: 10px;">{_('📊 类别效率对比')}</div>
                     <div style="display: flex; gap: 10px;">
                         <div style="flex: 1; background: #DCFCE7; border-radius: 8px; padding: 10px; text-align: center;">
-                            <div style="font-size: 11px; color: #166534;">效率最高</div>
+                            <div style="font-size: 11px; color: #166534;">{_('效率最高')}</div>
                             <div style="font-size: 15px; font-weight: 600; color: #15803D; margin: 4px 0;">{best}</div>
-                            <div style="font-size: 18px; font-weight: 700; color: #166534;">{best_data.get('avg_score', 0)}分</div>
-                            <div style="font-size: 11px; color: #166534;">{best_data.get('session_count', 0)}段 · {best_data.get('total_mins', 0)}分钟</div>
+                            <div style="font-size: 18px; font-weight: 700; color: #166534;">{_('{avg_score}分').format(avg_score=best_data.get('avg_score', 0))}</div>
+                            <div style="font-size: 11px; color: #166534;">
+                                {_('{session_count}段 · {total_mins}分钟').format(
+                                    session_count=best_data.get('session_count', 0),
+                                    total_mins=best_data.get('total_mins', 0),
+                                )}
+                            </div>
                         </div>
                         <div style="flex: 1; background: #FEF3C7; border-radius: 8px; padding: 10px; text-align: center;">
-                            <div style="font-size: 11px; color: #92400E;">效率较低</div>
+                            <div style="font-size: 11px; color: #92400E;">{_('效率较低')}</div>
                             <div style="font-size: 15px; font-weight: 600; color: #B45309; margin: 4px 0;">{worst}</div>
-                            <div style="font-size: 18px; font-weight: 700; color: #92400E;">{worst_data.get('avg_score', 0)}分</div>
+                            <div style="font-size: 18px; font-weight: 700; color: #92400E;">{_('{avg_score}分').format(avg_score=worst_data.get('avg_score', 0))}</div>
                             <div style="font-size: 11px; color: #92400E;">{worst_data.get('session_count', 0)}段 · {worst_data.get('total_mins', 0)}分钟</div>
                         </div>
                     </div>
                 </div>"""
                 sections.append(cat_html)
         
-        return "\n".join(sections) if sections else '<div style="color: #9CA3AF; text-align: center; padding: 20px;">数据量较少，暂无深度分析</div>'
+        return "\n".join(sections) if sections else f'<div style="color: #9CA3AF; text-align: center; padding: 20px;">{_('数据量较少，暂无深度分析')}</div>'
     
     def _build_expert_analysis_html(self, expert_analysis: str) -> str:
         """构建专业分析报告的 HTML"""
@@ -1141,7 +1201,7 @@ class ReportGenerator:
             <!-- 专业深度分析报告 -->
             <div style="background: linear-gradient(135deg, #E0F2FE 0%, #BAE6FD 100%); border-radius: 12px; padding: 20px; margin-top: 16px;">
                 <h2 style="font-size: 16px; font-weight: 600; color: #0C4A6E; margin: 0 0 16px 0; display: flex; align-items: center;">
-                    📋 专业分析报告
+                    {_('📋 专业分析报告')}
                 </h2>
                 <div style="background: white; border-radius: 8px; padding: 16px; color: #334155; font-size: 13px; line-height: 1.7;">
                     <p style="margin: 0; color: #334155; font-size: 13px; line-height: 1.7;">
@@ -1183,12 +1243,12 @@ class EmailScheduler:
         """发送报告"""
         try:
             now = datetime.now()
-            date_str = now.strftime("%m月%d日")
+            date_str = now.strftime(_("%m月%d日"))
             
             if period == "noon":
-                subject = f"📊 Dayflow 午间报告 - {date_str}"
+                subject = _("📊 Dayflow 午间报告 - {date_str}").format(date_str=date_str)
             else:
-                subject = f"📊 Dayflow 晚间报告 - {date_str}"
+                subject = _("📊 Dayflow 晚间报告 - {date_str}").format(date_str=date_str)
             
             html = self.report_generator.generate_daily_report(now)
             success, error_msg = self.email_service.send_report(subject, html)
@@ -1205,7 +1265,7 @@ class EmailScheduler:
         """发送测试邮件，返回 (成功, 错误信息)"""
         try:
             now = datetime.now()
-            subject = f"🧪 Dayflow 测试邮件 - {now.strftime('%H:%M')}"
+            subject = _("🧪 Dayflow 测试邮件 - {now}").format(now=now.strftime('%H:%M'))
             html = self.report_generator.generate_daily_report(now)
             return self.email_service.send_report(subject, html)
         except Exception as e:

@@ -69,3 +69,5 @@ test_*.mp4
 
 # PyInstaller
 *.spec
+
+locales/**/*.mo

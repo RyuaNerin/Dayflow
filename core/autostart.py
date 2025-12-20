@@ -6,6 +6,8 @@ import sys
 import logging
 from pathlib import Path
 
+from i18n import _
+
 logger = logging.getLogger(__name__)
 
 # Windows 注册表路径
@@ -83,7 +85,7 @@ def enable_autostart() -> tuple:
         (success: bool, message: str)
     """
     if not is_frozen():
-        return False, "开发模式下无法启用自启动，请使用打包后的 EXE"
+        return False, _("开发模式下无法启用自启动，请使用打包后的 EXE")
     
     try:
         import winreg
@@ -102,14 +104,14 @@ def enable_autostart() -> tuple:
         winreg.CloseKey(key)
         
         logger.info(f"已启用开机自启动: {startup_command}")
-        return True, "开机自启动已启用"
-        
+        return True, _("开机自启动已启用")
+
     except PermissionError:
         logger.error("启用自启动失败: 权限不足")
-        return False, "权限不足，请以管理员身份运行"
+        return False, _("权限不足，请以管理员身份运行")
     except Exception as e:
         logger.error(f"启用自启动失败: {e}")
-        return False, f"启用失败: {e}"
+        return False, _("启用失败: {}").format(e)
 
 
 def disable_autostart() -> tuple:
@@ -134,14 +136,14 @@ def disable_autostart() -> tuple:
             # 本来就没有，不算错误
             pass
         winreg.CloseKey(key)
-        return True, "开机自启动已禁用"
+        return True, _("开机自启动已禁用")
         
     except PermissionError:
         logger.error("禁用自启动失败: 权限不足")
-        return False, "权限不足，请以管理员身份运行"
+        return False, _("权限不足，请以管理员身份运行")
     except Exception as e:
         logger.error(f"禁用自启动失败: {e}")
-        return False, f"禁用失败: {e}"
+        return False, _("禁用失败: {}").format(e)
 
 
 def check_path_changed() -> tuple:
@@ -174,7 +176,7 @@ def update_autostart_path() -> tuple:
         (success: bool, message: str)
     """
     if not is_autostart_enabled():
-        return False, "自启动未启用"
+        return False, _("自启动未启用")
     
     # 重新启用即可更新路径
     return enable_autostart()

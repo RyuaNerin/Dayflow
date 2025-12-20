@@ -14,6 +14,7 @@ from PySide6.QtGui import QColor, QFont, QPalette, QLinearGradient, QPainter, QB
 
 from core.types import ActivityCard
 from ui.themes import get_theme_manager, get_theme
+from i18n import _
 
 
 # 类别颜色映射
@@ -63,7 +64,7 @@ class StatsSummaryWidget(QFrame):
         
         # 标题栏（可点击折叠）
         title_layout = QHBoxLayout()
-        self.title_label = QLabel("📊 时间分布")
+        self.title_label = QLabel(_("📊 时间分布"))
         title_layout.addWidget(self.title_label)
         
         self.total_label = QLabel("0h 0m")
@@ -93,7 +94,7 @@ class StatsSummaryWidget(QFrame):
         self.collapse_btn.setText("▶" if self._collapsed else "▼")
         
         # 更新按钮提示
-        self.collapse_btn.setToolTip("展开" if self._collapsed else "折叠")
+        self.collapse_btn.setToolTip(_("展开") if self._collapsed else _("折叠"))
     
     def apply_theme(self):
         """应用主题"""
@@ -155,7 +156,7 @@ class StatsSummaryWidget(QFrame):
         # 统计各类别时间
         new_data = {}
         for card in cards:
-            category = card.category or "其他"
+            category = card.category or _("其他")
             minutes = card.duration_minutes
             new_data[category] = new_data.get(category, 0) + minutes
         
@@ -169,7 +170,7 @@ class StatsSummaryWidget(QFrame):
         # 更新总时间
         hours = int(self._total_minutes // 60)
         mins = int(self._total_minutes % 60)
-        self.total_label.setText(f"共 {hours}h {mins}m")
+        self.total_label.setText(_("共 {hours}h {mins}m").format(hours=hours, mins=mins))
         
         # 暂停更新以减少重绘
         self.chart_widget.setUpdatesEnabled(False)
@@ -180,10 +181,10 @@ class StatsSummaryWidget(QFrame):
                 item = self.chart_container.takeAt(0)
                 if item.widget():
                     item.widget().deleteLater()
-            
+
             if not self._data:
                 t = get_theme()
-                empty = QLabel("暂无数据")
+                empty = QLabel(_("暂无数据"))
                 empty.setStyleSheet(f"color: {t.text_muted}; font-size: 13px;")
                 self.chart_container.addWidget(empty)
                 return
@@ -278,7 +279,7 @@ class ActivityCardWidget(QFrame):
         top_layout.setSpacing(12)
         
         # 类别标签
-        category_label = QLabel(self.card.category or "活动")
+        category_label = QLabel(self.card.category or _("活动"))
         category_label.setObjectName("categoryLabel")
         category_color = get_category_color(self.card.category)
         category_label.setStyleSheet(f"""
@@ -319,7 +320,7 @@ class ActivityCardWidget(QFrame):
         layout.addLayout(top_layout)
         
         # 标题
-        title_label = QLabel(self.card.title or "未命名活动")
+        title_label = QLabel(self.card.title or _("未命名活动"))
         title_label.setObjectName("titleLabel")
         title_label.setWordWrap(True)
         title_label.setStyleSheet(f"""
@@ -455,7 +456,7 @@ class TimelineHeader(QWidget):
         nav_layout.addWidget(self.next_btn)
         
         # 今天按钮
-        self.today_btn = QPushButton("今天")
+        self.today_btn = QPushButton(_("今天"))
         self.today_btn.setFixedHeight(32)
         self.today_btn.setCursor(Qt.PointingHandCursor)
         self.today_btn.clicked.connect(self._go_today)
@@ -465,7 +466,7 @@ class TimelineHeader(QWidget):
         layout.addStretch()
         
         # 导出按钮
-        self.export_btn = QPushButton("📥 导出")
+        self.export_btn = QPushButton(_("📥 导出"))
         self.export_btn.setFixedHeight(32)
         self.export_btn.setCursor(Qt.PointingHandCursor)
         self.export_btn.clicked.connect(self.export_clicked.emit)
@@ -565,18 +566,18 @@ class TimelineHeader(QWidget):
     
     def _update_date_display(self):
         today = datetime.now().date()
-        
+
         if self._current_date.date() == today:
-            date_text = "今天"
+            date_text = _("今天")
         elif self._current_date.date() == today - timedelta(days=1):
-            date_text = "昨天"
+            date_text = _("昨天")
         else:
-            date_text = self._current_date.strftime("%m月%d日")
-        
-        weekday_names = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
+            date_text = self._current_date.strftime(_("{month}月{day}日").format(month=self._current_date.month, day=self._current_date.day))
+
+        weekday_names = [_("周一"), _("周二"), _("周三"), _("周四"), _("周五"), _("周六"), _("周日")]
         weekday = weekday_names[self._current_date.weekday()]
-        
-        self.date_label.setText(f"{date_text}，{weekday}")
+
+        self.date_label.setText(_("{}，{}").format(date_text, weekday))
     
     def set_date(self, date: datetime):
         self._current_date = date
@@ -585,9 +586,9 @@ class TimelineHeader(QWidget):
     
     def set_stats(self, card_count: int, total_hours: float):
         if card_count > 0:
-            self.stats_label.setText(f"{card_count} 个活动 · {total_hours:.1f} 小时")
+            self.stats_label.setText(_("{card_count} 个活动 · {total_hours:.1f} 小时").format(card_count=card_count, total_hours=total_hours))
         else:
-            self.stats_label.setText("暂无记录")
+            self.stats_label.setText(_("暂无记录"))
 
 
 class TimelineView(QWidget):
@@ -631,7 +632,7 @@ class TimelineView(QWidget):
         search_layout.setContentsMargins(24, 12, 24, 12)
         
         self.search_input = QLineEdit()
-        self.search_input.setPlaceholderText("🔍 搜索活动标题或摘要...")
+        self.search_input.setPlaceholderText(_("🔍 搜索活动标题或摘要..."))
         self.search_input.setClearButtonEnabled(True)
         self.search_input.textChanged.connect(self._on_search_changed)
         search_layout.addWidget(self.search_input)
@@ -662,7 +663,7 @@ class TimelineView(QWidget):
         main_layout.addWidget(self.scroll)
         
         # 空状态提示
-        self.empty_label = QLabel("开始录制以生成时间轴")
+        self.empty_label = QLabel(_("开始录制以生成时间轴"))
         self.empty_label.setAlignment(Qt.AlignCenter)
         self.cards_layout.insertWidget(0, self.empty_label)
     
@@ -793,12 +794,12 @@ class TimelineView(QWidget):
         """更新空状态显示"""
         if cards is None:
             cards = self._cards
-        
+
         if len(cards) == 0:
             if self._search_text:
-                self.empty_label.setText("未找到匹配的活动")
+                self.empty_label.setText(_("未找到匹配的活动"))
             else:
-                self.empty_label.setText("开始录制以生成时间轴")
+                self.empty_label.setText(_("开始录制以生成时间轴"))
             self.empty_label.setVisible(True)
         else:
             self.empty_label.setVisible(False)

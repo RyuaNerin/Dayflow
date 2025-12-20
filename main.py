@@ -17,6 +17,7 @@ from PySide6.QtGui import QFont
 
 import config
 from ui.main_window import MainWindow
+from i18n import init_i18n, _
 
 
 def parse_args():
@@ -74,20 +75,20 @@ def check_autostart_path():
         # 弹窗询问用户是否更新
         reply = QMessageBox.question(
             None,
-            "路径变化",
-            f"检测到程序位置已变化：\n\n"
-            f"原路径：{old_path}\n"
-            f"新路径：{new_path}\n\n"
-            f"是否更新开机自启动设置？",
+            _("路径变化"),
+            _("检测到程序位置已变化：\n\n"
+              "原路径：{old_path}\n"
+              "新路径：{new_path}\n\n"
+              "是否更新开机自启动设置？").format(old_path=old_path, new_path=new_path),
             QMessageBox.Yes | QMessageBox.No
         )
-        
+
         if reply == QMessageBox.Yes:
             success, msg = update_autostart_path()
             if success:
-                QMessageBox.information(None, "成功", "自启动路径已更新")
+                QMessageBox.information(None, _("成功"), _("自启动路径已更新"))
             else:
-                QMessageBox.warning(None, "失败", msg)
+                QMessageBox.warning(None, _("失败"), msg)
 
 
 def main():
@@ -138,6 +139,9 @@ def main():
         theme_manager.set_theme(LIGHT_THEME)
     else:
         theme_manager.set_theme(DARK_THEME)
+    
+    # 初始化 i18n 系统
+    init_i18n(storage=storage)
     
     # 检测自启动路径变化
     check_autostart_path()
