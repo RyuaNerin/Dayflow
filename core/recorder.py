@@ -164,22 +164,24 @@ class ScreenRecorder:
                     time.sleep(0.1)
                     continue
                 
-                # 检查是否需要创建新切片（先创建切片，再采集窗口信息）
+                # 先采集窗口信息（在帧捕获时立即采集，确保时间对齐）
+                frame_capture_time = datetime.now()
+                window_info = self._window_tracker.get_active_window()
+                
+                # 检查是否需要创建新切片
                 if self._should_create_new_chunk():
                     self._finalize_current_chunk()
                     self._create_new_chunk(frame.shape)
                 
-                # 采集当前窗口信息（在切片创建后采集，确保 _current_chunk_start 有效）
-                if self._current_chunk_start:
-                    window_info = self._window_tracker.get_active_window()
-                    if window_info:
-                        elapsed = (datetime.now() - self._current_chunk_start).total_seconds()
-                        self._current_window_records.append({
-                            "timestamp": elapsed,
-                            "app_name": self._window_tracker.get_friendly_app_name(window_info),
-                            "window_title": window_info.window_title,
-                            "process_name": window_info.app_name
-                        })
+                # 记录窗口信息（使用帧捕获时的时间计算 elapsed）
+                if self._current_chunk_start and window_info:
+                    elapsed = (frame_capture_time - self._current_chunk_start).total_seconds()
+                    self._current_window_records.append({
+                        "timestamp": elapsed,
+                        "app_name": self._window_tracker.get_friendly_app_name(window_info),
+                        "window_title": window_info.window_title,
+                        "process_name": window_info.app_name
+                    })
                 
                 # 写入帧
                 if self._current_writer:

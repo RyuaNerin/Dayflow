@@ -117,31 +117,44 @@ class DeepAnalyzer:
         将连续的同类型记录合并成真正的工作段
         
         例如：10个连续的"编程"卡片 → 1个10分钟的编程工作段
+        
+        注意：如果两张卡片之间的时间间隔超过 5 分钟，即使类别相同也视为不同工作段
         """
         if not self.sorted_cards:
             return []
+        
+        # 时间间隔阈值（分钟）- 超过此值视为不同工作段
+        GAP_THRESHOLD_MINUTES = 5
         
         sessions = []
         current_session = {
             'category': self.sorted_cards[0].category,
             'start_time': self.sorted_cards[0].start_time,
+            'end_time': self.sorted_cards[0].end_time,
             'duration': self.sorted_cards[0].duration_minutes,
             'scores': [self.sorted_cards[0].productivity_score] if self.sorted_cards[0].productivity_score > 0 else []
         }
         
         for card in self.sorted_cards[1:]:
-            # 如果类别相同，合并到当前工作段
-            if card.category == current_session['category']:
+            # 计算与上一张卡片的时间间隔
+            time_gap = 0
+            if current_session['end_time'] and card.start_time:
+                time_gap = (card.start_time - current_session['end_time']).total_seconds() / 60
+            
+            # 如果类别相同且时间间隔在阈值内，合并到当前工作段
+            if card.category == current_session['category'] and time_gap <= GAP_THRESHOLD_MINUTES:
                 current_session['duration'] += card.duration_minutes
+                current_session['end_time'] = card.end_time
                 if card.productivity_score > 0:
                     current_session['scores'].append(card.productivity_score)
             else:
-                # 类别不同，保存当前工作段，开始新的
+                # 类别不同或时间间隔过大，保存当前工作段，开始新的
                 current_session['avg_score'] = int(sum(current_session['scores']) / len(current_session['scores'])) if current_session['scores'] else 0
                 sessions.append(current_session)
                 current_session = {
                     'category': card.category,
                     'start_time': card.start_time,
+                    'end_time': card.end_time,
                     'duration': card.duration_minutes,
                     'scores': [card.productivity_score] if card.productivity_score > 0 else []
                 }
@@ -380,18 +393,19 @@ class AICommentGenerator:
     """AI 点评生成器 - 基于深度数据"""
     
     # 朋友式点评 Prompt
-    COMMENT_PROMPT = """你是用户的一个懂时间管理的朋友。下面是他今天的时间记录数据分析，请基于这些【客观数据】写一段点评。
+    COMMENT_PROMPT = """你是用户的一个懂时间管理的朋友。下面是他今天的时间记录数据，请基于【客观数据】写一段点评。
 
-【数据说明】
-- "工作段"是指连续做同一类事情的时间段（如：连续60分钟编程=1个编程工作段）
-- 切换次数是指在不同类别之间切换的次数
-- 这些都是系统自动记录并智能合并后的结果
+【写作风格】
+- 像发微信语音转文字那样自然，可以用口语化表达
+- 开头别用"今天"，换个角度切入（比如从某个有趣的数据点开始）
+- 别总结数据，而是说出数据背后有意思的发现
+- 别给建议，除非数据明显指向某个问题
 
-【重要原则】
-- 只陈述数据呈现的事实，不要猜测原因
-- 可以指出数据中的有趣发现
-- 建议要基于数据可支撑的方向，不要空泛
-- 用朋友聊天的口吻，自然不做作
+【禁止使用】
+- "继续保持"、"加油"、"相信你"、"明天会更好" 等鸡汤
+- "今天你..."、"从数据来看..." 等套路开头
+- 过多 emoji（最多1个，放结尾）
+- 任何形式的猜测（"可能是因为..."）
 
 【今日数据】
 日期：{date}
@@ -414,13 +428,10 @@ class AICommentGenerator:
 【今日类型】
 {day_type}
 
-【写作要求】
-1. 像微信聊天一样自然，适当用口语（但别过度）
-2. 先从数据里挑一两个有意思的发现聊起
-3. 基于数据特点给一个具体可行的建议
-4. 字数100-150字
-5. 禁止：猜测原因、说"可能"、空洞的鼓励语
-6. 直接输出，不要标题"""
+【输出要求】
+- 100-150字
+- 直接输出，不要标题
+- 说人话，别像 AI"""
 
     # 专业深度分析 Prompt
     ANALYSIS_PROMPT = """你是一位专业的时间管理与行为分析专家。请基于以下用户今日的活动数据，撰写一份专业的深度分析报告。

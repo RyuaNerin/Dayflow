@@ -20,54 +20,64 @@ from core.types import Observation, ActivityCard, AppSite, Distraction
 logger = logging.getLogger(__name__)
 
 # 系统提示词
-TRANSCRIBE_SYSTEM_PROMPT = """你是一个屏幕活动分析助手。分析用户提供的屏幕截图序列，识别用户正在进行的活动。
+TRANSCRIBE_SYSTEM_PROMPT = """你是屏幕活动分析助手。根据截图和窗口信息，描述用户的具体行为。
 
-我会提供：
-1. 屏幕截图序列
-2. 系统采集的真实窗口信息（包含应用名称和窗口标题）
-
-请以 JSON 格式返回观察记录列表，格式如下：
+返回 JSON 格式：
 {
   "observations": [
-    {
-      "start_ts": 0,
-      "end_ts": 10,
-      "text": "用户正在使用 VS Code 编写 Python 代码",
-      "app_name": "Visual Studio Code",
-      "window_title": "main.py - Dayflow"
-    }
+    {"start_ts": 0, "end_ts": 10, "text": "编写 Python 代码，实现用户登录功能"}
   ]
 }
 
-注意：
-- start_ts 和 end_ts 是相对于视频开始的秒数
-- app_name 和 window_title 请优先使用我提供的真实窗口信息，不要自己猜测
-- 描述用户的具体操作行为（在做什么、写什么、看什么）
-- 只返回 JSON，不要其他内容"""
+规则：
+- start_ts/end_ts 是相对秒数
+- text 只描述行为（写什么代码、看什么内容、做什么操作），不要写应用名称
+- 参考窗口标题理解上下文（如文件名、网页标题、聊天对象）
+- 只返回 JSON"""
 
-GENERATE_CARDS_SYSTEM_PROMPT = """你是一个时间管理助手。根据屏幕活动观察记录，生成时间轴活动卡片。
+GENERATE_CARDS_SYSTEM_PROMPT = """你是时间管理助手。根据观察记录生成活动卡片。
 
-请以 JSON 格式返回活动卡片列表，格式如下：
+JSON 格式：
 {
   "cards": [
     {
-      "category": "工作",
-      "title": "Python 开发",
-      "summary": "使用 VS Code 进行 Dayflow 项目的 Python 开发工作",
+      "category": "编程",
+      "title": "Dayflow 项目开发",
+      "summary": "实现用户登录功能，编写单元测试",
       "start_time": "2024-01-01T10:00:00",
       "end_time": "2024-01-01T11:30:00",
-      "app_sites": [
-        {"name": "VS Code", "duration_seconds": 5400}
-      ],
+      "app_sites": [{"name": "VS Code", "duration_seconds": 5400}],
       "distractions": [],
       "productivity_score": 85
     }
   ]
 }
 
-类别包括：工作、学习、编程、会议、娱乐、社交、休息、其他
-productivity_score 范围 0-100，代表生产力水平
-只返回 JSON，不要其他内容"""
+类别定义：
+- 编程：写代码、调试、代码审查
+- 工作：文档、邮件、项目管理、设计
+- 学习：看教程、读文档、做笔记
+- 会议：视频会议、语音通话
+- 社交：聊天、社交媒体
+- 娱乐：视频、游戏、音乐
+- 休息：无明显活动
+- 其他：无法归类
+
+productivity_score 评分标准：
+- 90-100：高度专注的核心工作（编程、写作、设计）
+- 70-89：一般工作（邮件、文档、会议）
+- 50-69：低效工作（频繁切换、碎片化任务）
+- 30-49：轻度娱乐（浏览、社交）
+- 0-29：纯娱乐（游戏、视频）
+
+合并规则：连续相同应用且相似活动 → 合并为一张卡片
+拆分规则：同一时段内切换不同类型活动 → 拆分为多张卡片
+
+跨批次连续性：
+- 如果"前序活动卡片"的最后一张与当前观察记录的开头是同类活动，考虑延续而非新建
+- 检查前序卡片的 category 和 title，如果当前活动是其延续，在 title 中体现连续性
+
+只返回 JSON"""
 
 
 class DayflowBackendProvider:
@@ -224,23 +234,28 @@ class DayflowBackendProvider:
             logger.warning(f"无法从视频提取帧: {video_path}")
             return []
         
-        # 构建窗口信息文本
+        # 构建窗口信息文本（包含窗口标题）
         window_info_text = ""
         if window_records:
-            window_info_text = "\n\n系统采集的真实窗口信息：\n"
+            window_info_text = "\n\n窗口信息：\n"
             # 按时间段聚合相同的应用
             current_app = None
+            current_title = None
             current_start = 0
             for record in window_records:
                 app_name = record.get("app_name", "Unknown")
-                if app_name != current_app:
+                window_title = record.get("window_title", "")
+                if app_name != current_app or window_title != current_title:
                     if current_app:
-                        window_info_text += f"- [{current_start:.0f}s - {record['timestamp']:.0f}s] {current_app}\n"
+                        title_part = f": {current_title}" if current_title else ""
+                        window_info_text += f"- [{current_start:.0f}s - {record['timestamp']:.0f}s] {current_app}{title_part}\n"
                     current_app = app_name
+                    current_title = window_title
                     current_start = record.get("timestamp", 0)
             # 添加最后一个
             if current_app:
-                window_info_text += f"- [{current_start:.0f}s - {duration:.0f}s] {current_app}\n"
+                title_part = f": {current_title}" if current_title else ""
+                window_info_text += f"- [{current_start:.0f}s - {duration:.0f}s] {current_app}{title_part}\n"
         
         # 构建消息内容（包含多张图片）
         content = []
