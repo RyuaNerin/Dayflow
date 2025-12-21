@@ -224,8 +224,8 @@ class DayflowBackendProvider:
         content.append({
             "type": "text",
             "text": _("以下是一段 {duration:.0f} 秒屏幕录制的 {frames} 个关键帧，请分析用户的活动。{prompt}").format(
-                duration=f'{duration}',
-                len=len(frames),
+                duration=duration,
+                frames=len(frames),
                 prompt=prompt or '',
             )
         })

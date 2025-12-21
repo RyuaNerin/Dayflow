@@ -217,6 +217,9 @@ msgid "📨 发送测试邮件"
 msgstr "📨 테스트 이메일 발송"
 
 #: ui/main_window.py - Autostart Settings
+msgid "🚀 开机启动"
+msgstr "🚀 부팅 시 시작"
+
 msgid "开机时自动启动 Dayflow 并最小化到系统托盘"
 msgstr "시스템 시작 시 Dayflow를 자동으로 실행하고 시스템 트레이로 최소화"
 

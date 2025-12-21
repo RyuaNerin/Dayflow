@@ -579,7 +579,7 @@ class SettingsPanel(QWidget):
         
         # === 开机启动 ===
         autostart_frame, autostart_layout = self._create_card(layout)
-        self._create_title("🚀 开机启动", autostart_layout)
+        self._create_title(_("🚀 开机启动"), autostart_layout)
         
         autostart_desc = QLabel(_("开机时自动启动 Dayflow 并最小化到系统托盘"))
         autostart_desc.setObjectName("cardDesc")

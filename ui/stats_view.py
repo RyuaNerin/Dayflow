@@ -407,7 +407,7 @@ class CategoryLegend(QWidget):
         layout.setSpacing(8)
         layout.setHorizontalSpacing(20)
         
-        categories = list({_(k):v for k, v in CATEGORY_COLORS}.items())
+        categories = list((_(k),v) for k, v in CATEGORY_COLORS.items())
         cols = 4  # 每行 4 个
         
         for idx, (cat, color) in enumerate(categories):
