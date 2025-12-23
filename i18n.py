@@ -22,7 +22,6 @@ import config
 # Global state
 _current_language = config.DEFAULT_LANGUAGE  # Track current language
 _locales_dir = Path(__file__).parent / "locales"
-_translations_cache: Dict[str, object] = {}  # Cache loaded translations
 
 
 class MultiDomainTranslator:

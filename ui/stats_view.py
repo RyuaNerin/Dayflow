@@ -32,6 +32,19 @@ CATEGORY_COLORS = {
     "其他": "#94A3B8",
 }
 
+_category_colors_i18n: Dict[str,str] | None = None
+
+def get_category_colors() -> Dict[str, str]:
+    """获取类别颜色映射，包含国际化"""
+    global _category_colors_i18n
+    if _category_colors_i18n is None:
+        _category_colors_i18n = {_(k): v for k, v in CATEGORY_COLORS.items()}
+    return _category_colors_i18n
+
+def get_category_color(category: str, default_color: str) -> str:
+    """获取类别对应的颜色"""
+    return get_category_colors().get(category, default_color)
+
 
 class BarChartWidget(QWidget):
     """柱状图组件 - 显示每日时间分布"""
@@ -135,7 +148,7 @@ class BarChartWidget(QWidget):
                 if bar_height < 1:
                     continue
                 
-                color = QColor(CATEGORY_COLORS.get(_(cat), "#94A3B8"))
+                color = QColor(get_category_color(cat, "#94A3B8"))
                 painter.setBrush(QBrush(color))
                 painter.setPen(Qt.NoPen)
                 
@@ -407,7 +420,7 @@ class CategoryLegend(QWidget):
         layout.setSpacing(8)
         layout.setHorizontalSpacing(20)
         
-        categories = list((_(k),v) for k, v in CATEGORY_COLORS.items())
+        categories = list(get_category_colors().items())
         cols = 4  # 每行 4 个
         
         for idx, (cat, color) in enumerate(categories):
@@ -556,7 +569,7 @@ class DateCompareWidget(QWidget):
             color_box = QLabel()
             color_box.setFixedSize(10, 10)
             color_box.setStyleSheet(
-                f"background-color: {CATEGORY_COLORS.get(_(cat), '#94A3B8')}; border-radius: 2px;"
+                f"background-color: {get_category_color(cat, '#94A3B8')}; border-radius: 2px;"
             )
             row.addWidget(color_box)
             

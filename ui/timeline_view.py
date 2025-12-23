@@ -2,7 +2,7 @@
 Dayflow Windows - 时间轴视图组件
 """
 from datetime import datetime, timedelta
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QScrollArea,
@@ -37,10 +37,16 @@ CATEGORY_COLORS = {
     "Other": "#78716C",
 }
 
+_category_colors_i18n: Dict[str,str] | None = None
+
 
 def get_category_color(category: str) -> str:
     """获取类别对应的颜色"""
-    return CATEGORY_COLORS.get(category, "#78716C")
+    global _category_colors_i18n
+    if _category_colors_i18n is None:
+        _category_colors_i18n = {_(k): v for k, v in CATEGORY_COLORS.items()}
+
+    return _category_colors_i18n.get(category, "#78716C")
 
 
 class StatsSummaryWidget(QFrame):
