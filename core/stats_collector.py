@@ -158,7 +158,7 @@ class StatsCollector:
             result.append({
                 "name": category,
                 "value": round(duration, 1),
-                "color": get_category_color(category, CATEGORY_COLORS[_("其他")])
+                "color": get_category_color(category, CATEGORY_COLORS["其他"])
             })
         
         return result
@@ -312,7 +312,7 @@ class StatsCollector:
                 "end": card.end_time.strftime("%H:%M") if card.end_time else "",
                 "date": card.start_time.strftime("%Y-%m-%d") if card.start_time else "",
                 "category": card.category or _("其他"),
-                "category_color": get_category_color(card.category, CATEGORY_COLORS[_("其他")]),
+                "category_color": get_category_color(card.category, CATEGORY_COLORS["其他"]),
                 "title": card.title,
                 "summary": card.summary,
                 "score": card.productivity_score,

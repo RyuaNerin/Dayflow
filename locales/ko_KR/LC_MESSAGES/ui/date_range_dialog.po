@@ -1,0 +1,55 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Dayflow 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-12-21 00:00+0900\n"
+"PO-Revision-Date: 2024-12-21 00:00+0900\n"
+"Last-Translator: \n"
+"Language-Team: Korean\n"
+"Language: ko_KR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "选择日期范围"
+msgstr "날짜 범위 선택"
+
+msgid "📊 导出生产力报告"
+msgstr "📊 생산성 보고서 내보내기"
+
+msgid "选择要导出的日期范围，将生成 HTML 格式的报告"
+msgstr "내보낼 날짜 범위를 선택하면 HTML 형식의 보고서가 생성됩니다."
+
+msgid "快速选择:"
+msgstr "빠른 선택:"
+
+msgid "今日"
+msgstr "오늘"
+
+msgid "昨日"
+msgstr "어제"
+
+msgid "本周"
+msgstr "이번 주"
+
+msgid "上周"
+msgstr "지난 주"
+
+msgid "本月"
+msgstr "이번 달"
+
+msgid "自定义"
+msgstr "사용자 정의"
+
+msgid "开始日期"
+msgstr "시작 날짜"
+
+msgid "结束日期"
+msgstr "종료 날짜"
+
+msgid "取消"
+msgstr "취소"
+
+msgid "导出报告"
+msgstr "보고서 내보내기"

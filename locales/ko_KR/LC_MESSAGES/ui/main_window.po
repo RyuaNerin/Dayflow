@@ -113,6 +113,9 @@ msgstr "📤 데이터 내보내기"
 msgid "📥 导入数据"
 msgstr "📥 데이터 가져오기"
 
+msgid "📊 导出仪表盘"
+msgstr "📊 대시보드 내보내기"
+
 msgid "导出数据"
 msgstr "데이터 내보내기"
 
@@ -123,7 +126,13 @@ msgid "导出成功"
 msgstr "내보내기 성공"
 
 msgid "仪表盘已导出并在浏览器中打开\n\n文件位置:\n{path}"
-msgstr "대시보드를 내보내고 브라우저에서 열었습니다\n\n파일 위치:\n{path}"
+msgstr "내보낸 대시보드를 브라우저에서 열었습니다.\n\n파일 위치:\n{path}"
+
+msgid "导出失败"
+msgstr "내보내기 실패"
+
+msgid "导出仪表盘时出错: {e}"
+msgstr "대시보드 내보내기 중 오류: {e}"
 
 msgid "已导出 {len} 条活动记录\n保存到: {file_path}"
 msgstr "{len}개의 활동 기록을 내보냈습니다\n저장 위치: {file_path}"
@@ -428,6 +437,12 @@ msgstr "Dayflow 재시작 후 적용됩니다."
 #: ui/main_window.py - Export CSV
 msgid "当前日期没有数据可导出"
 msgstr "현재 날짜에 내보낼 데이터가 없습니다"
+
+msgid "导出 CSV"
+msgstr "CSV 내보내기"
+
+msgid "CSV 文件 (*.csv)"
+msgstr "CSV 파일 (*.csv)"
 
 msgid "开始时间"
 msgstr "시작 시간"

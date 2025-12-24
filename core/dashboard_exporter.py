@@ -17,7 +17,7 @@ from core.stats_collector import StatsCollector, CATEGORY_COLORS
 
 logger = logging.getLogger(__name__)
 
-from i18n import _
+from i18n import _, get_current_language
 
 @dataclass
 class DashboardData:
@@ -224,5 +224,11 @@ class DashboardExporter:
     
     def _render_template(self, data: DashboardData) -> str:
         """渲染 HTML 模板"""
-        template = self.env.get_template("dashboard.html")
+        template_path = (
+            "dashboard.html"
+            if get_current_language() == config.DEFAULT_LANGUAGE
+            else f"dashboard_{get_current_language()}.html"
+        )
+        
+        template = self.env.get_template(template_path)
         return template.render(data=data)

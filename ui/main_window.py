@@ -673,7 +673,7 @@ class SettingsPanel(QWidget):
         self.import_btn.clicked.connect(self._import_data)
         data_row.addWidget(self.import_btn)
         
-        self.dashboard_btn = QPushButton("📊 导出仪表盘")
+        self.dashboard_btn = QPushButton(_("📊 导出仪表盘"))
         self.dashboard_btn.setCursor(Qt.PointingHandCursor)
         self.dashboard_btn.setFixedHeight(38)
         self.dashboard_btn.clicked.connect(self._export_dashboard)
@@ -1343,11 +1343,11 @@ class SettingsPanel(QWidget):
                 path = exporter.export_and_open(start_date, end_date)
                 QMessageBox.information(
                     self, _("导出成功"), 
-                    _("仪表盘已导出并在浏览器中打开\n\n文件位置:\n{path}")
+                    _("仪表盘已导出并在浏览器中打开\n\n文件位置:\n{path}").format(path=path)
                 )
             except Exception as e:
                 logger.error(f"导出仪表盘失败: {e}")
-                QMessageBox.critical(self, "导出失败", f"导出仪表盘时出错: {e}")
+                QMessageBox.critical(self, _("导出失败"), _("导出仪表盘时出错: {e}").format(e=e))
         
         dialog.range_selected.connect(on_export)
         dialog.exec()
@@ -1358,7 +1358,7 @@ class SettingsPanel(QWidget):
         import shutil
         from pathlib import Path
         
-        file_path, _ = QFileDialog.getSaveFileName(
+        file_path, __ = QFileDialog.getSaveFileName(
             self,
             _("导出数据"),
             f"dayflow_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
@@ -1415,7 +1415,7 @@ class SettingsPanel(QWidget):
         """导入数据"""
         import json
         
-        file_path, _ = QFileDialog.getOpenFileName(
+        file_path, __ = QFileDialog.getOpenFileName(
             self,
             _("导入数据"),
             "",
@@ -2488,11 +2488,11 @@ class MainWindow(QMainWindow):
         
         # 选择保存路径
         default_name = f"dayflow_{date.strftime('%Y%m%d')}.csv"
-        file_path, _ = QFileDialog.getSaveFileName(
+        file_path, __ = QFileDialog.getSaveFileName(
             self,
-            "导出 CSV",
+            _("导出 CSV"),
             default_name,
-            "CSV 文件 (*.csv)"
+            _("CSV 文件 (*.csv)")
         )
         
         if not file_path:

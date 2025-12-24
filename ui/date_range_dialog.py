@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Signal, QDate, Qt
 from PySide6.QtGui import QFont
 
+from i18n import _
 
 class DateRangeDialog(QDialog):
     """日期范围选择对话框"""
@@ -20,7 +21,7 @@ class DateRangeDialog(QDialog):
     
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("选择日期范围")
+        self.setWindowTitle(_("选择日期范围"))
         self.setFixedSize(400, 280)
         self.setModal(True)
         
@@ -37,13 +38,13 @@ class DateRangeDialog(QDialog):
         layout.setContentsMargins(24, 24, 24, 24)
         
         # 标题
-        title = QLabel("📊 导出生产力报告")
+        title = QLabel(_("📊 导出生产力报告"))
         title.setFont(QFont("", 14, QFont.Bold))
         title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
         
         # 说明
-        desc = QLabel("选择要导出的日期范围，将生成 HTML 格式的报告")
+        desc = QLabel(_("选择要导出的日期范围，将生成 HTML 格式的报告"))
         desc.setStyleSheet("color: #888;")
         desc.setAlignment(Qt.AlignCenter)
         desc.setWordWrap(True)
@@ -57,9 +58,9 @@ class DateRangeDialog(QDialog):
         
         # 预设选项
         preset_layout = QHBoxLayout()
-        preset_label = QLabel("快速选择:")
+        preset_label = QLabel(_("快速选择:"))
         self.preset_combo = QComboBox()
-        self.preset_combo.addItems(["今日", "昨日", "本周", "上周", "本月", "自定义"])
+        self.preset_combo.addItems([_(x) for x in ["今日", "昨日", "本周", "上周", "本月", "自定义"]])
         self.preset_combo.setMinimumWidth(150)
         preset_layout.addWidget(preset_label)
         preset_layout.addWidget(self.preset_combo)
@@ -70,7 +71,7 @@ class DateRangeDialog(QDialog):
         date_layout = QHBoxLayout()
         
         start_layout = QVBoxLayout()
-        start_label = QLabel("开始日期")
+        start_label = QLabel(_("开始日期"))
         start_label.setStyleSheet("color: #888; font-size: 12px;")
         self.start_date = QDateEdit()
         self.start_date.setCalendarPopup(True)
@@ -80,7 +81,7 @@ class DateRangeDialog(QDialog):
         start_layout.addWidget(self.start_date)
         
         end_layout = QVBoxLayout()
-        end_label = QLabel("结束日期")
+        end_label = QLabel(_("结束日期"))
         end_label.setStyleSheet("color: #888; font-size: 12px;")
         self.end_date = QDateEdit()
         self.end_date.setCalendarPopup(True)
@@ -100,11 +101,11 @@ class DateRangeDialog(QDialog):
         btn_layout = QHBoxLayout()
         btn_layout.addStretch()
         
-        cancel_btn = QPushButton("取消")
+        cancel_btn = QPushButton(_("取消"))
         cancel_btn.setMinimumWidth(80)
         cancel_btn.clicked.connect(self.reject)
         
-        export_btn = QPushButton("导出报告")
+        export_btn = QPushButton(_("导出报告"))
         export_btn.setMinimumWidth(100)
         export_btn.setStyleSheet("""
             QPushButton {
