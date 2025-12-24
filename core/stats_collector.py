@@ -9,6 +9,7 @@ from typing import List, Dict, Optional
 from database.storage import StorageManager
 
 logger = logging.getLogger(__name__)
+from i18n import _
 
 # 分类颜色映射
 CATEGORY_COLORS = {
@@ -21,6 +22,19 @@ CATEGORY_COLORS = {
     "休息": "#6b7280",    # 灰色
     "其他": "#8b5cf6",    # 浅紫色
 }
+
+_category_colors_i18n: Dict[str,str] | None = None
+
+def get_category_colors() -> Dict[str, str]:
+    """获取类别颜色映射，包含国际化"""
+    global _category_colors_i18n
+    if _category_colors_i18n is None:
+        _category_colors_i18n = {_(k): v for k, v in CATEGORY_COLORS.items()}
+    return _category_colors_i18n
+
+def get_category_color(category: str, default_color: str) -> str:
+    """获取类别对应的颜色"""
+    return get_category_colors().get(category, default_color)
 
 
 class StatsCollector:
@@ -134,7 +148,7 @@ class StatsCollector:
         # 按分类汇总时长
         category_duration = {}
         for card in cards:
-            category = card.category or "其他"
+            category = card.category or _("其他")
             duration = card.duration_minutes
             category_duration[category] = category_duration.get(category, 0) + duration
         
@@ -144,7 +158,7 @@ class StatsCollector:
             result.append({
                 "name": category,
                 "value": round(duration, 1),
-                "color": CATEGORY_COLORS.get(category, CATEGORY_COLORS["其他"])
+                "color": get_category_color(category, CATEGORY_COLORS[_("其他")])
             })
         
         return result
@@ -226,7 +240,7 @@ class StatsCollector:
             
             result.append({
                 "date": target_date.strftime("%m-%d"),
-                "weekday": ["周一", "周二", "周三", "周四", "周五", "周六", "周日"][target_date.weekday()],
+                "weekday": [_(x) for x in ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]][target_date.weekday()],
                 "duration": round(total_duration, 1),
                 "score": round(avg_score, 1)
             })
@@ -297,8 +311,8 @@ class StatsCollector:
                 "start": card.start_time.strftime("%H:%M") if card.start_time else "",
                 "end": card.end_time.strftime("%H:%M") if card.end_time else "",
                 "date": card.start_time.strftime("%Y-%m-%d") if card.start_time else "",
-                "category": card.category or "其他",
-                "category_color": CATEGORY_COLORS.get(card.category, CATEGORY_COLORS["其他"]),
+                "category": card.category or _("其他"),
+                "category_color": get_category_color(card.category, CATEGORY_COLORS[_("其他")]),
                 "title": card.title,
                 "summary": card.summary,
                 "score": card.productivity_score,

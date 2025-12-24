@@ -1,0 +1,15 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Dayflow 1.0\n"
+"Last-Translator: \n"
+"Language: ko_KR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "%Y年%m月%d日"
+msgstr "%Y년 %m월 %d일"
+
+msgid "Dayflow 生产力报告 - {date_range}"
+msgstr "Dayflow 생산성 보고서 - {date_range}"

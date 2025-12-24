@@ -704,7 +704,7 @@ class SettingsPanel(QWidget):
         email_layout.addLayout(enable_row)
         
         # 发送时间配置
-        send_time_label = QLabel("发送时间（可配置多个，用逗号分隔，如 12:00,22:00）")
+        send_time_label = QLabel(_("发送时间（可配置多个，用逗号分隔，如 12:00,22:00）"))
         send_time_label.setObjectName("inputLabel")
         self._descs.append(send_time_label)
         email_layout.addWidget(send_time_label)

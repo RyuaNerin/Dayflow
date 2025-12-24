@@ -6,6 +6,8 @@ import logging
 from dataclasses import dataclass
 from typing import Optional
 
+from i18n import _
+
 logger = logging.getLogger(__name__)
 
 # 尝试导入 Windows 相关库
@@ -86,6 +88,7 @@ class WindowTracker:
             "steam": "Steam",
             "epicgameslauncher": "Epic Games",
         }
+        self._app_name_map = {k: _(v) for k, v in self._app_name_map.items()}
     
     @property
     def is_available(self) -> bool:

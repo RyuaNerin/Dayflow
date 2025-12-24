@@ -33,6 +33,69 @@ msgstr "휴식"
 msgid "其他"
 msgstr "기타"
 
+msgid "编辑活动"
+msgstr "활동 편집"
+
+msgid "类别"
+msgstr "카테고리"
+
+msgid "标题"
+msgstr "제목"
+
+msgid "活动标题"
+msgstr "활동 제목"
+
+msgid "摘要"
+msgstr "요약"
+
+msgid "活动摘要描述"
+msgstr "활동 요약 설명"
+
+msgid "效率评分"
+msgstr "효율성 점수"
+
+msgid "应用程序"
+msgstr "애플리케이션"
+
+msgid "🗑️ 删除"
+msgstr "🗑️ 삭제"
+
+msgid "取消"
+msgstr "취소"
+
+msgid "保存"
+msgstr "저장"
+
+msgid "确认删除"
+msgstr "삭제 확인"
+
+msgid "确定要删除这条活动记录吗？\n\n「{card_title}」\n\n此操作不可撤销。"
+msgstr "이 활동 기록을 삭제하시겠습니까?\n\n「{card_title}」\n\n이 작업은 취소할 수 없습니다."
+
+msgid "未命名活动"
+msgstr "이름 없는 활동"
+
+msgid "🔥 深度工作"
+msgstr "🔥 집중 작업"
+
+msgid "✏️ 编辑"
+msgstr "✏️ 편집"
+
+msgid "确定要删除这条活动记录吗？\n\n「{card_title}」"
+msgstr "이 활동 기록을 삭제하시겠습니까?\n\n「{card_title}」"
+
+msgid "开始记录你的一天"
+msgstr "하루 기록을 시작하세요"
+
+msgid "点击左侧「开始录制」按钮，Dayflow 将\n自动追踪你的屏幕活动并生成时间轴"
+msgstr "왼쪽의 '기록 시작' 버튼을 클릭하면 Dayflow가\n자동으로 화면 활동을 추적하고 타임라인을 생성합니다."
+
+msgid "未找到匹配的活动"
+msgstr "일치하는 활동을 찾을 수 없습니다"
+
+msgid "尝试使用其他关键词搜索"
+msgstr "다른 키워드로 검색해 보세요"
+
 # StatsSummaryWidget
 msgid "📊 时间分布"
 msgstr "📊 시간 분포"

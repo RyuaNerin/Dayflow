@@ -206,7 +206,7 @@ class UpdateDownloader:
             
             # 所有源都失败
             if self.on_complete:
-                self.on_complete(False, f"所有下载源都失败: {last_error}")
+                self.on_complete(False, _("所有下载源都失败: {last_error}").format(last_error=last_error))
                 
         except Exception as e:
             logger.error(f"下载过程出错: {e}")

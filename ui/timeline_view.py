@@ -57,12 +57,12 @@ class CardEditDialog(QDialog):
     card_deleted = Signal(int)     # 发送删除的卡片 ID
     
     # 可选类别列表
-    CATEGORIES = ["工作", "学习", "编程", "会议", "娱乐", "社交", "休息", "其他"]
+    CATEGORIES = [_(x) for x in ["工作", "学习", "编程", "会议", "娱乐", "社交", "休息", "其他"]]
     
     def __init__(self, card: 'ActivityCard', parent=None):
         super().__init__(parent)
         self.card = card
-        self.setWindowTitle("编辑活动")
+        self.setWindowTitle(_("编辑活动"))
         self.setMinimumWidth(450)
         self.setModal(True)
         self._setup_ui()
@@ -81,7 +81,7 @@ class CardEditDialog(QDialog):
         
         # 类别选择
         cat_layout = QHBoxLayout()
-        cat_label = QLabel("类别")
+        cat_label = QLabel(_("类别"))
         cat_label.setFixedWidth(80)
         self.category_combo = QComboBox()
         self.category_combo.addItems(self.CATEGORIES)
@@ -89,27 +89,27 @@ class CardEditDialog(QDialog):
         if self.card.category in self.CATEGORIES:
             self.category_combo.setCurrentText(self.card.category)
         else:
-            self.category_combo.setCurrentText("其他")
+            self.category_combo.setCurrentText(_("其他"))
         cat_layout.addWidget(cat_label)
         cat_layout.addWidget(self.category_combo)
         layout.addLayout(cat_layout)
         
         # 标题输入
         title_layout = QHBoxLayout()
-        title_label = QLabel("标题")
+        title_label = QLabel(_("标题"))
         title_label.setFixedWidth(80)
         self.title_input = QLineEdit(self.card.title or "")
-        self.title_input.setPlaceholderText("活动标题")
+        self.title_input.setPlaceholderText(_("活动标题"))
         title_layout.addWidget(title_label)
         title_layout.addWidget(self.title_input)
         layout.addLayout(title_layout)
         
         # 摘要输入
         summary_layout = QVBoxLayout()
-        summary_label = QLabel("摘要")
+        summary_label = QLabel(_("摘要"))
         self.summary_input = QTextEdit()
         self.summary_input.setPlainText(self.card.summary or "")
-        self.summary_input.setPlaceholderText("活动摘要描述")
+        self.summary_input.setPlaceholderText(_("活动摘要描述"))
         self.summary_input.setMaximumHeight(100)
         summary_layout.addWidget(summary_label)
         summary_layout.addWidget(self.summary_input)
@@ -117,7 +117,7 @@ class CardEditDialog(QDialog):
         
         # 生产力评分
         score_layout = QHBoxLayout()
-        score_label = QLabel("效率评分")
+        score_label = QLabel(_("效率评分"))
         score_label.setFixedWidth(80)
         self.score_spin = QSpinBox()
         self.score_spin.setRange(0, 100)
@@ -132,7 +132,7 @@ class CardEditDialog(QDialog):
         
         # 应用列表（只读）
         if self.card.app_sites:
-            apps_label = QLabel("应用程序")
+            apps_label = QLabel(_("应用程序"))
             apps_text = ", ".join([app.name for app in self.card.app_sites[:5]])
             if len(self.card.app_sites) > 5:
                 apps_text += f" (+{len(self.card.app_sites) - 5})"
@@ -148,7 +148,7 @@ class CardEditDialog(QDialog):
         btn_layout = QHBoxLayout()
         
         # 删除按钮
-        self.delete_btn = QPushButton("🗑️ 删除")
+        self.delete_btn = QPushButton(_("🗑️ 删除"))
         self.delete_btn.setCursor(Qt.PointingHandCursor)
         self.delete_btn.clicked.connect(self._on_delete)
         btn_layout.addWidget(self.delete_btn)
@@ -156,13 +156,13 @@ class CardEditDialog(QDialog):
         btn_layout.addStretch()
         
         # 取消按钮
-        self.cancel_btn = QPushButton("取消")
+        self.cancel_btn = QPushButton(_("取消"))
         self.cancel_btn.setCursor(Qt.PointingHandCursor)
         self.cancel_btn.clicked.connect(self.reject)
         btn_layout.addWidget(self.cancel_btn)
         
         # 保存按钮
-        self.save_btn = QPushButton("保存")
+        self.save_btn = QPushButton(_("保存"))
         self.save_btn.setCursor(Qt.PointingHandCursor)
         self.save_btn.clicked.connect(self._on_save)
         btn_layout.addWidget(self.save_btn)
@@ -199,8 +199,10 @@ class CardEditDialog(QDialog):
         """删除卡片"""
         reply = QMessageBox.question(
             self,
-            "确认删除",
-            f"确定要删除这条活动记录吗？\n\n「{self.card.title or '未命名活动'}」\n\n此操作不可撤销。",
+            _("确认删除"),
+            _("确定要删除这条活动记录吗？\n\n「{card_title}」\n\n此操作不可撤销。").format(
+                card_title=self.card.title or _("未命名活动")
+            ),
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
         )
@@ -587,7 +589,7 @@ class ActivityCardWidget(QFrame):
         
         # 深度工作徽章 (duration >= 60 分钟)
         if self.card.duration_minutes >= 60:
-            deep_work_badge = QLabel("🔥 深度工作")
+            deep_work_badge = QLabel(_("🔥 深度工作"))
             deep_work_badge.setStyleSheet(f"""
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #FF6B6B, stop:1 #FF8E53);
                 color: white;
@@ -764,14 +766,14 @@ class ActivityCardWidget(QFrame):
         """)
         
         # 编辑
-        edit_action = QAction("✏️ 编辑", self)
+        edit_action = QAction(_("✏️ 编辑"), self)
         edit_action.triggered.connect(lambda: self.edit_requested.emit(self.card))
         menu.addAction(edit_action)
         
         menu.addSeparator()
         
         # 删除
-        delete_action = QAction("🗑️ 删除", self)
+        delete_action = QAction(_("🗑️ 删除"), self)
         delete_action.triggered.connect(lambda: self._confirm_delete())
         menu.addAction(delete_action)
         
@@ -781,8 +783,10 @@ class ActivityCardWidget(QFrame):
         """确认删除"""
         reply = QMessageBox.question(
             self,
-            "确认删除",
-            f"确定要删除这条活动记录吗？\n\n「{self.card.title or '未命名活动'}」",
+            _("确认删除"),
+            _("确定要删除这条活动记录吗？\n\n「{card_title}」").format(
+                card_title=self.card.title or _('未命名活动')
+            ),
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
         )
@@ -811,12 +815,12 @@ class EmptyStateWidget(QWidget):
         layout.addWidget(self.icon_label)
         
         # 标题
-        self.title_label = QLabel("开始记录你的一天")
+        self.title_label = QLabel(_("开始记录你的一天"))
         self.title_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.title_label)
         
         # 描述
-        self.desc_label = QLabel("点击左侧「开始录制」按钮，Dayflow 将\n自动追踪你的屏幕活动并生成时间轴")
+        self.desc_label = QLabel(_("点击左侧「开始录制」按钮，Dayflow 将\n自动追踪你的屏幕活动并生成时间轴"))
         self.desc_label.setAlignment(Qt.AlignCenter)
         self.desc_label.setWordWrap(True)
         layout.addWidget(self.desc_label)
@@ -842,12 +846,12 @@ class EmptyStateWidget(QWidget):
         """切换搜索模式显示"""
         if is_search:
             self.icon_label.setText("🔍")
-            self.title_label.setText("未找到匹配的活动")
-            self.desc_label.setText("尝试使用其他关键词搜索")
+            self.title_label.setText(_("未找到匹配的活动"))
+            self.desc_label.setText(_("尝试使用其他关键词搜索"))
         else:
             self.icon_label.setText("⏱️")
-            self.title_label.setText("开始记录你的一天")
-            self.desc_label.setText("点击左侧「开始录制」按钮，Dayflow 将\n自动追踪你的屏幕活动并生成时间轴")
+            self.title_label.setText(_("开始记录你的一天"))
+            self.desc_label.setText(_("点击左侧「开始录制」按钮，Dayflow 将\n自动追踪你的屏幕活动并生成时间轴"))
 
 
 class TimelineHeader(QWidget):

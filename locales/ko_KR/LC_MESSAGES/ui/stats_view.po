@@ -33,9 +33,39 @@ msgstr "휴식"
 msgid "其他"
 msgstr "기타"
 
+msgid "未命名"
+msgstr "이름 없음"
+
+msgid "— 持平"
+msgstr "— 변동 없음"
+
+msgid "vs 上周 {change_text}"
+msgstr "지난 주 대비 {change_text}"
+
+msgid "总时长"
+msgstr "총 시간"
+
+msgid "平均效率"
+msgstr "평균 효율성"
+
+msgid "深度工作"
+msgstr "집중 작업"
+
+msgid "活动数"
+msgstr "활동 수"
+
+msgid "次"
+msgstr "회"
+
+msgid "个"
+msgstr "개"
+
 # BarChartWidget messages
 msgid "暂无数据"
 msgstr "데이터 없음"
+
+msgid "暂无应用使用数据"
+msgstr "앱 사용 데이터 없음"
 
 # LineChartWidget messages
 msgid "数据不足，需要至少2天记录"
@@ -54,6 +84,21 @@ msgstr "오늘 진행: 0시간 / 8시간"
 #, python-brace-format
 msgid "今日进度: {current:.1f}h / {goals}h"
 msgstr "오늘 진행: {current:.1f}시간 / {goals}시간"
+
+msgid "{hour:02d}:00 - {hour_1:02d}:00\n效率: {score:.0f}%\n时长: {minutes:.0f}分钟"
+msgstr "{hour:02d}:00 - {hour_1:02d}:00\n효율성: {score:.0f}%\n시간: {minutes:.0f}분"
+
+msgid "{hour:02d}:00 - {hour_1:02d}:00\n无数据"
+msgstr "{hour:02d}:00 - {hour_1:02d}:00\n데이터 없음"
+
+msgid "本周总时长"
+msgstr "이번 주 총 시간"
+
+msgid "分钟"
+msgstr "분"
+
+msgid "本周效率"
+msgstr "이번 주 효율성"
 
 msgid "🎉 目标已达成！"
 msgstr "🎉 목표 달성!"
@@ -104,3 +149,9 @@ msgstr "앱 / 웹 사용"
 
 msgid "日期对比"
 msgstr "날짜 비교"
+
+msgid "本周应用 / 网站使用"
+msgstr "이번 주 앱 / 웹 사용"
+
+msgid "本月应用 / 网站使用"
+msgstr "이번 달 앱 / 웹 사용"

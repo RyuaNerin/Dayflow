@@ -664,3 +664,9 @@ msgstr "오후"
 #: email_service.py
 msgid "晚上"
 msgstr "저녁"
+
+msgid "Dayflow 邮件发送失败"
+msgstr "Dayflow 이메일 발송 실패"
+
+msgid "{period} 报告发送失败，请检查网络和邮箱配置"
+msgstr "{period} 보고서 발송 실패, 네트워크 및 이메일 설정을 확인해주세요"

@@ -1,0 +1,33 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Dayflow 1.0\n"
+"Last-Translator: \n"
+"Language: ko_KR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "微信"
+msgstr "위챗"
+
+msgid "钉钉"
+msgstr "딩톡"
+
+msgid "飞书"
+msgstr "Lark"
+
+msgid "记事本"
+msgstr "메모장"
+
+msgid "文件资源管理器"
+msgstr "파일 탐색기"
+
+msgid "命令提示符"
+msgstr "명령 프롬프트"
+
+msgid "网易云音乐"
+msgstr "NetEase Cloud Music"
+
+msgid "QQ音乐"
+msgstr "QQ 음악"

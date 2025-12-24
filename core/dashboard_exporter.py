@@ -17,6 +17,7 @@ from core.stats_collector import StatsCollector, CATEGORY_COLORS
 
 logger = logging.getLogger(__name__)
 
+from i18n import _
 
 @dataclass
 class DashboardData:
@@ -197,12 +198,12 @@ class DashboardExporter:
         
         # 日期范围文本
         if start_date == end_date:
-            date_range = start_date.strftime("%Y年%m月%d日")
+            date_range = start_date.strftime(_("%Y年%m月%d日"))
         else:
-            date_range = f"{start_date.strftime('%Y年%m月%d日')} ~ {end_date.strftime('%Y年%m月%d日')}"
+            date_range = f"{start_date.strftime(_('%Y年%m月%d日'))} ~ {end_date.strftime(_('%Y年%m月%d日'))}"
         
         return DashboardData(
-            title=f"Dayflow 生产力报告 - {date_range}",
+            title=_("Dayflow 生产力报告 - {date_range}").format(date_range=date_range),
             date_range=date_range,
             generated_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             total_duration_minutes=total_duration,

@@ -1378,7 +1378,7 @@ class EmailScheduler:
         elif period == "night":
             subject = _("📊 Dayflow 晚间报告 - {date_str}").format(date_str=date_str)
         else:
-            subject = f"📊 Dayflow {period} 报告 - {date_str}"
+            subject = _("📊 Dayflow {period} 报告 - {date_str}").format(period=period, date_str=date_str)
         
         last_error = ""
         
@@ -1487,8 +1487,8 @@ class EmailScheduler:
         if self.tray_icon:
             try:
                 self.tray_icon.showMessage(
-                    "Dayflow 邮件发送失败",
-                    f"{period} 报告发送失败，请检查网络和邮箱配置",
+                    _("Dayflow 邮件发送失败"),
+                    _("{period} 报告发送失败，请检查网络和邮箱配置").format(period=period),
                     self.tray_icon.MessageIcon.Warning,
                     5000
                 )

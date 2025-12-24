@@ -36,6 +36,7 @@ CATEGORY_COLORS = {
     "其他": "#94A3B8",
 }
 
+
 # 指标卡片渐变色
 METRIC_GRADIENTS = {
     "time": ("#3B82F6", "#1D4ED8"),      # 蓝色
@@ -45,10 +46,24 @@ METRIC_GRADIENTS = {
 }
 
 
+_category_colors_i18n: Dict[str,str] | None = None
+
+def get_category_colors() -> Dict[str, str]:
+    """获取类别颜色映射，包含国际化"""
+    global _category_colors_i18n
+    if _category_colors_i18n is None:
+        _category_colors_i18n = {_(k): v for k, v in CATEGORY_COLORS.items()}
+    return _category_colors_i18n
+
+def get_category_color(category: str, default_color: str) -> str:
+    """获取类别对应的颜色"""
+    return get_category_colors().get(category, default_color)
+
+
 def normalize_app_name(name: str) -> str:
     """归一化应用名称"""
     if not name:
-        return "未命名"
+        return _("未命名")
     
     raw = name.strip()
     lower = raw.lower()
@@ -143,10 +158,10 @@ class MetricCard(QFrame):
             self._change_text = f"↓ {change:.0f}{suffix}"
             change_color = "#EF4444"
         else:
-            self._change_text = "— 持平"
+            self._change_text = f"— {_("持平")}"
             change_color = "#9CA3AF"
         
-        self.change_label.setText(f"vs 上周 {self._change_text}")
+        self.change_label.setText(_("vs 上周 {change_text}").format(change_text=self._change_text))
         self.change_label.setStyleSheet(f"font-size: 11px; color: {change_color};")
     
     def _apply_style(self):
@@ -200,10 +215,10 @@ class MetricCardsRow(QWidget):
         layout.setSpacing(16)
         
         # 4 个指标卡片
-        self.time_card = MetricCard("总时长", "⏱️", "time")
-        self.efficiency_card = MetricCard("平均效率", "⚡", "efficiency")
-        self.deep_work_card = MetricCard("深度工作", "🔥", "deep_work")
-        self.activities_card = MetricCard("活动数", "📊", "activities")
+        self.time_card = MetricCard(_("总时长"), "⏱️", "time")
+        self.efficiency_card = MetricCard(_("平均效率"), "⚡", "efficiency")
+        self.deep_work_card = MetricCard(_("深度工作"), "🔥", "deep_work")
+        self.activities_card = MetricCard(_("活动数"), "📊", "activities")
         
         layout.addWidget(self.time_card)
         layout.addWidget(self.efficiency_card)
@@ -227,13 +242,13 @@ class MetricCardsRow(QWidget):
             self.efficiency_card.set_change(change, "pt")
         
         # 深度工作
-        self.deep_work_card.set_value(f"{deep_work_count}", "次")
+        self.deep_work_card.set_value(f"{deep_work_count}", _("次"))
         if prev_deep_work > 0:
             change = deep_work_count - prev_deep_work
             self.deep_work_card.set_change(change, "")
         
         # 活动数
-        self.activities_card.set_value(f"{activity_count}", "个")
+        self.activities_card.set_value(f"{activity_count}", _("个"))
         if prev_activities > 0:
             change = ((activity_count - prev_activities) / prev_activities) * 100
             self.activities_card.set_change(change)
@@ -286,7 +301,7 @@ class DonutChart(QWidget):
             
             painter.setPen(QPen(QColor(t.text_muted)))
             painter.setFont(QFont("Microsoft YaHei", 12))
-            painter.drawText(self.rect(), Qt.AlignCenter, "暂无数据")
+            painter.drawText(self.rect(), Qt.AlignCenter, _("暂无数据"))
             painter.end()
             return
         
@@ -419,19 +434,6 @@ class DonutChart(QWidget):
             self._hovered_index = -1
             self.setToolTip("")
             self.update()
-
-_category_colors_i18n: Dict[str,str] | None = None
-
-def get_category_colors() -> Dict[str, str]:
-    """获取类别颜色映射，包含国际化"""
-    global _category_colors_i18n
-    if _category_colors_i18n is None:
-        _category_colors_i18n = {_(k): v for k, v in CATEGORY_COLORS.items()}
-    return _category_colors_i18n
-
-def get_category_color(category: str, default_color: str) -> str:
-    """获取类别对应的颜色"""
-    return get_category_colors().get(category, default_color)
 
 
 class BarChartWidget(QWidget):
@@ -999,9 +1001,14 @@ class HourlyHeatmapWidget(QWidget):
                 score, minutes = self._data.get(hour, (0, 0))
                 
                 if minutes > 0:
-                    self.setToolTip(f"{hour:02d}:00 - {hour+1:02d}:00\n效率: {score:.0f}%\n时长: {minutes:.0f}分钟")
+                    self.setToolTip(_("{hour:02d}:00 - {hour_1:02d}:00\n效率: {score:.0f}%\n时长: {minutes:.0f}分钟").format(
+                        hour=hour,
+                        hour_1=hour+1,
+                        score=score,
+                        minutes=minutes
+                    ))
                 else:
-                    self.setToolTip(f"{hour:02d}:00 - {hour+1:02d}:00\n无数据")
+                    self.setToolTip(_("{hour:02d}:00 - {hour_1:02d}:00\n无数据").format(hour=hour, hour_1=hour+1))
                 
                 self.update()
                 return
@@ -1069,7 +1076,7 @@ class WeekCompareWidget(QWidget):
             
             cards = self.storage.get_cards_for_date(date)
             for card in cards:
-                cat = card.category or "其他"
+                cat = card.category or _("其他")
                 stats[cat] = stats.get(cat, 0) + card.duration_minutes
                 
                 if card.productivity_score > 0:
@@ -1107,8 +1114,8 @@ class WeekCompareWidget(QWidget):
         last_score = self._last_week_data.get("_avg_score", 0)
         
         # 总览卡片
-        self._add_summary_card("本周总时长", this_total, last_total, "分钟", self.summary_layout)
-        self._add_summary_card("本周效率", this_score, last_score, "%", self.summary_layout)
+        self._add_summary_card(_("本周总时长"), this_total, last_total, _("分钟"), self.summary_layout)
+        self._add_summary_card(_("本周效率"), this_score, last_score, "%", self.summary_layout)
         
         self.summary_layout.addStretch()
         
@@ -1216,13 +1223,13 @@ class WeekCompareWidget(QWidget):
                 change_text = f"↓ {abs(percent):.0f}%"
                 change_color = "#EF4444"
             else:
-                change_text = "持平"
+                change_text = _("持平")
                 change_color = t.text_muted
         else:
             change_text = "—"
             change_color = t.text_muted
         
-        change_label = QLabel(f"vs 上周 {change_text}")
+        change_label = QLabel(_("vs 上周 {change_text}").format(change_text=change_text))
         change_label.setStyleSheet(f"color: {change_color}; font-size: 11px;")
         card_layout.addWidget(change_label)
         
@@ -1435,7 +1442,7 @@ class AppUsageListWidget(QWidget):
         self.rows_container.setSpacing(8)
         layout.addLayout(self.rows_container)
         
-        self.empty_label = QLabel("暂无应用使用数据")
+        self.empty_label = QLabel(_("暂无应用使用数据"))
         self.empty_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.empty_label)
     
@@ -1467,7 +1474,7 @@ class AppUsageListWidget(QWidget):
             row_layout.setContentsMargins(0, 0, 0, 0)
             row_layout.setSpacing(10)
             
-            name_label = QLabel(name or "未命名")
+            name_label = QLabel(name or _("未命名"))
             name_label.setFixedWidth(160)
             name_label.setStyleSheet(f"color: {t.text_primary}; font-size: 12px;")
             row_layout.addWidget(name_label)
@@ -1682,9 +1689,9 @@ class StatsPanel(QWidget):
         # 根据时间范围更新应用分区标题文案
         if self.app_section_title:
             if range_type == "week":
-                self.app_section_title.setText("本周应用 / 网站使用")
+                self.app_section_title.setText(_("本周应用 / 网站使用"))
             else:
-                self.app_section_title.setText("本月应用 / 网站使用")
+                self.app_section_title.setText(_("本月应用 / 网站使用"))
         
         self._load_data()
     
@@ -1842,7 +1849,7 @@ class StatsPanel(QWidget):
                 donut_data.append((cat, minutes, color))
             
             center_text = f"{total_hours:.1f}h"
-            center_subtext = "总时长"
+            center_subtext = _("总时长")
             self.donut_chart.set_data(donut_data, center_text, center_subtext)
             
             # 更新图表
