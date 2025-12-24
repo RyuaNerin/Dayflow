@@ -47,6 +47,7 @@
 | Feature | Description |
 |---------|-------------|
 | 🎥 **Low-Power Recording** | 1 FPS ultra-low resource usage, runs silently in background |
+| 🪟 **Window Tracking** | Uses Windows API to capture real app names and window titles |
 | 🤖 **AI-Powered Analysis** | Vision LLM identifies screen activities and auto-categorizes |
 | 📊 **Timeline Visualization** | Intuitive daily time allocation view at a glance |
 | 💡 **Productivity Insights** | AI-driven efficiency assessment and improvement suggestions |
@@ -56,7 +57,9 @@
 
 | Feature | Description |
 |---------|-------------|
-| 📧 **Email Reports** | Auto-send productivity reports at 12:00 and 22:00 daily |
+| 🪟 **Window Tracking** | Auto-capture real app names via Windows API for more accurate AI recognition |
+| 📊 **Web Dashboard** | Export beautiful HTML reports with interactive charts, shareable |
+| 📧 **Email Reports** | Auto-send productivity reports with customizable send times |
 | 📋 **Deep Analysis Report** | Professional behavior analysis, bottleneck detection, improvement strategies |
 | 🤖 **AI Comments** | AI-generated personalized daily summary with friendly encouragement |
 | 🔄 **Auto Update** | Check for updates, background download, one-click install |
@@ -67,7 +70,55 @@
 | 📥 **CSV Export** | One-click export activity data to CSV for analysis |
 | ⏸️ **Pause Recording** | Pause when handling private content, resume when done |
 | 🎨 **Theme Switching** | IDE-style dark/light themes with auto-saved preferences |
+| ⚙️ **Configurable Settings** | Customize email times, sample frames, API timeout, and more |
 | 📦 **EXE Packaging** | Build standalone executable, no Python required |
+
+### 📋 Changelog
+
+#### v1.5.1 (2025-12)
+
+**📊 Statistics Page Redesign**
+- Brand new dashboard style with refined aesthetics
+- Top metric cards: Total duration, average efficiency, deep work count, activity count
+- Dual-column grid layout: Left charts + Right data panels
+- Donut chart: Category time distribution with hover interaction
+- Line chart upgrade: Gradient fill + Bezier curve smoothing
+- Bar chart upgrade: Gradient colors + Background track
+- Heatmap refined: More compact hourly efficiency display
+- Week comparison: This week vs Last week data comparison
+- Card shadow effects: More layered visual experience
+
+**✏️ Card Editing Feature**
+- Right-click menu to edit/delete activity cards
+- Editable fields: Category, title, summary, efficiency score
+- Click card to enter edit mode directly
+
+#### v1.5.0 (2025-12)
+
+**🪟 Window Tracking Enhancement**
+- New Windows API window tracking, auto-captures real app names and window titles
+- AI analysis combines window info for more accurate recognition
+
+**🎨 UI Improvements**
+- Activity cards now show left-side efficiency indicator (green/orange/gray)
+- Deep work badge: 🔥 icon for activities 60+ minutes
+- Sidebar selected state shows left blue indicator bar
+- Recording status displays real-time duration (HH:MM:SS format)
+- System tray tooltip shows recording status
+- Empty state page with guide icon and text
+- Page title typography optimization (28px/700)
+- Settings page card spacing increased
+
+**🤖 AI Prompt Optimization**
+- Simplified transcription prompts, reduced redundant output
+- Better utilization of window title info for recognition
+- Optimized card generation prompts for better categorization
+- Email comments more natural, less AI-like
+
+**🔧 Data Processing Improvements**
+- Window record time alignment optimization
+- Batch boundary continuity handling
+- Email merge logic optimization (5-minute gap threshold)
 
 ---
 
@@ -83,7 +134,55 @@
 
 ![Dayflow Statistics](assets/Dayflow_Statistics.png)
 
-*Statistics: View weekly/monthly time distribution and productivity trends*
+*Statistics: Dashboard-style design with top metric cards + dual-column layout, including donut chart, trend chart, heatmap, week comparison, and more*
+
+Statistics page features:
+
+| Feature | Description |
+|---------|-------------|
+| 📊 **Metric Cards** | Total duration, avg efficiency, deep work count, activities with week comparison |
+| 🍩 **Donut Chart** | Category time distribution visualization with hover details |
+| 📈 **Trend Chart** | Productivity trend line chart with gradient fill + smooth curves |
+| 📊 **Bar Chart** | Daily time distribution with stacked categories |
+| 🔥 **Heatmap** | 24-hour efficiency distribution, quickly identify peak hours |
+| ⚖️ **Week Compare** | This week vs Last week data comparison, spot trends |
+| 🎯 **Daily Goal** | Set daily goals and track completion progress |
+| 📱 **App Ranking** | Most used apps/websites usage time leaderboard |
+
+### 📊 Web Dashboard
+
+#### Date Selection
+
+![Dashboard Date Selection](assets/Dayflow_Dashboard_Dialog.png)
+
+*Date Range Selection: Supports Today, Yesterday, This Week, Last Week, This Month, Custom Range*
+
+#### Dashboard Report
+
+![Web Dashboard](assets/Dayflow_Dashboard_Report.png)
+
+*Web Dashboard: Beautiful HTML report with interactive charts, viewable in browser or shareable*
+
+The Web Dashboard feature lets you export your productivity data as a beautiful HTML report:
+
+| Feature | Description |
+|---------|-------------|
+| 📈 **Overview Cards** | Total duration, average efficiency, deep work time, activity count |
+| 🥧 **Time Distribution Pie** | Visual breakdown of time by category |
+| 📊 **Hourly Efficiency Chart** | See efficiency changes throughout the day |
+| 📅 **Weekly Trend Chart** | Last 7 days duration and efficiency trends |
+| 🏆 **App Leaderboard** | Top 5 most used apps with usage time |
+| 📋 **Activity Timeline** | Complete activity list with category filtering |
+| 🎨 **Dark Theme** | Consistent with Dayflow desktop style |
+| 📱 **Responsive Design** | Works on mobile, tablet, and desktop |
+
+How to use:
+1. Go to **Settings** → **Data Management**
+2. Click **📊 Export Dashboard**
+3. Select date range (Today/This Week/This Month/Custom)
+4. Click **Export Report**, opens automatically in browser
+
+> 💡 The exported HTML file is self-contained and can be shared directly with others - no software installation required.
 
 ### 📧 Email Report Feature
 
@@ -128,7 +227,8 @@ Professional analysis dimensions:
 
 | Feature | Description |
 |---------|-------------|
-| ⏰ **Scheduled Push** | Auto-send reports at 12:00 and 22:00 daily |
+| ⏰ **Scheduled Push** | Default 12:00 and 22:00, customizable send times |
+| 🔄 **Smart Catch-up** | Auto-sends missed reports after sleep/shutdown |
 | 📊 **Data Summary** | Total time, efficiency score, deep work sessions |
 | 📈 **Category Stats** | Visual breakdown with efficiency comparison |
 | 🎯 **Focus Analysis** | Longest focus, fragmentation ratio, hourly efficiency |
@@ -268,8 +368,9 @@ After building, the `dist/Dayflow/` folder can be copied and shared directly.
 
 1. Go to **Settings** → **Email Push**
 2. Enter your QQ email address and authorization code
-3. Click **Save Config**
-4. Click **Test Send** to verify
+3. Customize send times (default: 12:00 and 22:00)
+4. Click **Save Config**
+5. Click **Test Send** to verify
 
 > 💡 Get auth code: QQ Mail → Settings → Account → POP3/SMTP Service → Generate Authorization Code
 
@@ -277,6 +378,8 @@ After building, the `dist/Dayflow/` folder can be copied and shared directly.
 - 📊 Daily time statistics (total duration, efficiency score)
 - 📈 Time distribution by category
 - 💬 AI-generated personalized feedback and suggestions
+
+**Smart Catch-up**: If your computer was asleep/off during scheduled send time, missed reports will be automatically sent when you start up (within 2 hours).
 
 ### 5️⃣ Auto Start (Optional)
 
@@ -316,21 +419,31 @@ Dayflow/
 ├── 🧠 core/                # Core logic
 │   ├── types.py            # Data models
 │   ├── recorder.py         # Screen capture (dxcam)
+│   ├── window_tracker.py   # Window tracking (Windows API)
 │   ├── llm_provider.py     # AI API integration
 │   ├── analysis.py         # Analysis scheduler
-│   ├── email_service.py    # Email reports + Deep analysis
+│   ├── email_service.py    # Email reports + Deep analysis + Smart catch-up
 │   ├── updater.py          # Version check + Multi-source download
-│   └── autostart.py        # Auto-start management
+│   ├── autostart.py        # Auto-start management
+│   ├── config_manager.py   # Centralized config management
+│   ├── log_manager.py      # Log rotation management
+│   ├── stats_collector.py  # Statistics data collector
+│   └── dashboard_exporter.py # Web dashboard export
 │
 ├── 💾 database/            # Data layer
 │   ├── schema.sql          # Table definitions
-│   └── storage.py          # SQLite management
+│   ├── storage.py          # SQLite management
+│   └── connection_pool.py  # Database connection pool
 │
 ├── 🎨 ui/                  # UI layer
 │   ├── main_window.py      # Main window + Settings panel
 │   ├── timeline_view.py    # Timeline component
 │   ├── stats_view.py       # Statistics panel
+│   ├── date_range_dialog.py # Date range selection dialog
 │   └── themes.py           # Theme management
+│
+├── 📄 templates/           # HTML templates
+│   └── dashboard.html      # Web dashboard template
 │
 └── 🖼️ assets/              # Resources
     └── icon.ico            # App icon

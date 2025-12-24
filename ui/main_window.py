@@ -189,31 +189,36 @@ class SidebarButton(QPushButton):
                 background-color: transparent;
                 color: {t.text_muted};
                 border: none;
-                border-radius: 10px;
+                border-radius: 0px 10px 10px 0px;
                 text-align: left;
                 padding-left: 14px;
                 font-size: 14px;
                 font-weight: 500;
-                margin: 2px 8px;
+                margin: 2px 8px 2px 0px;
             }}
             QPushButton:hover {{
                 background-color: {t.bg_hover};
                 color: {t.text_primary};
             }}
             QPushButton:checked {{
-                background-color: {t.accent};
-                color: #FFFFFF;
+                background-color: {t.accent_light};
+                color: {t.accent};
+                border-left: 3px solid {t.accent};
+                padding-left: 11px;
                 font-weight: 600;
             }}
         """)
 
 
 class RecordingIndicator(QWidget):
-    """录制状态指示器"""
+    """录制状态指示器 - 带实时时长显示"""
     
     def __init__(self, parent=None):
         super().__init__(parent)
         self._recording = False
+        self._paused = False
+        self._start_time = None
+        self._elapsed_seconds = 0
         self._setup_ui()
         get_theme_manager().theme_changed.connect(self._apply_idle_theme)
     
@@ -232,12 +237,32 @@ class RecordingIndicator(QWidget):
         
         layout.addStretch()
         
-        # 闪烁动画
+        # 闪烁动画（脉冲效果）
         self._blink_timer = QTimer(self)
         self._blink_timer.timeout.connect(self._blink)
         self._blink_state = True
         
+        # 时长更新定时器
+        self._duration_timer = QTimer(self)
+        self._duration_timer.timeout.connect(self._update_duration)
+        
         self._apply_idle_theme()
+    
+    def _format_duration(self, seconds: int) -> str:
+        """格式化时长为 HH:MM:SS"""
+        hours = seconds // 3600
+        minutes = (seconds % 3600) // 60
+        secs = seconds % 60
+        return f"{hours:02d}:{minutes:02d}:{secs:02d}"
+    
+    def _update_duration(self):
+        """更新录制时长显示"""
+        if self._recording and not self._paused and self._start_time:
+            from datetime import datetime
+            elapsed = (datetime.now() - self._start_time).total_seconds()
+            self._elapsed_seconds = int(elapsed)
+            duration_str = self._format_duration(self._elapsed_seconds)
+            self.status_label.setText(f"录制中 {duration_str}")
     
     def _apply_idle_theme(self):
         if not self._recording:
@@ -246,32 +271,164 @@ class RecordingIndicator(QWidget):
             self.status_label.setStyleSheet(f"color: {t.text_muted}; font-size: 12px;")
     
     def set_recording(self, recording: bool, paused: bool = False):
+        from datetime import datetime
+        
         self._recording = recording
+        self._paused = paused
         t = get_theme()
 
         if recording and not paused:
+            # 开始录制
+            if self._start_time is None:
+                self._start_time = datetime.now()
+                self._elapsed_seconds = 0
+            
             self.dot.setStyleSheet(f"color: {t.error}; font-size: 10px;")
-            self.status_label.setText(_("录制中"))
-            self.status_label.setStyleSheet(f"color: {t.error}; font-size: 12px;")
+            self.status_label.setText(_("录制中 00:00:00"))
+            self.status_label.setStyleSheet(f"color: {t.error}; font-size: 12px; font-weight: 600;")
             self._blink_timer.start(800)
+            self._duration_timer.start(1000)
+            
         elif recording and paused:
+            # 暂停
+            duration_str = self._format_duration(self._elapsed_seconds)
             self.dot.setStyleSheet(f"color: {t.warning}; font-size: 10px;")
-            self.status_label.setText(_("已暂停"))
+            self.status_label.setText(_("已暂停 {duration_str}").format(duration_str=duration_str))
             self.status_label.setStyleSheet(f"color: {t.warning}; font-size: 12px;")
             self._blink_timer.stop()
+            self._duration_timer.stop()
+            
         else:
+            # 停止
+            self._start_time = None
+            self._elapsed_seconds = 0
             self.dot.setStyleSheet(f"color: {t.text_muted}; font-size: 10px;")
             self.status_label.setText(_("未录制"))
             self.status_label.setStyleSheet(f"color: {t.text_muted}; font-size: 12px;")
             self._blink_timer.stop()
+            self._duration_timer.stop()
     
     def _blink(self):
+        """脉冲动画"""
         t = get_theme()
         self._blink_state = not self._blink_state
         if self._blink_state:
             self.dot.setStyleSheet(f"color: {t.error}; font-size: 10px;")
         else:
-            self.dot.setStyleSheet("color: transparent; font-size: 10px;")
+            self.dot.setStyleSheet(f"color: {t.error}; font-size: 10px; opacity: 0.3;")
+    
+    def get_elapsed_time(self) -> str:
+        """获取当前录制时长字符串"""
+        return self._format_duration(self._elapsed_seconds)
+
+
+class CollapsibleSection(QWidget):
+    """可折叠区域组件"""
+    
+    def __init__(self, title: str, summary: str = "", parent=None):
+        super().__init__(parent)
+        self._title = title
+        self._summary = summary
+        self._collapsed = True  # 默认折叠
+        self._setup_ui()
+        self.apply_theme()
+        get_theme_manager().theme_changed.connect(self.apply_theme)
+    
+    def _setup_ui(self):
+        self.main_layout = QVBoxLayout(self)
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        self.main_layout.setSpacing(0)
+        
+        # 标题栏（可点击）
+        self.header = QFrame()
+        self.header.setCursor(Qt.PointingHandCursor)
+        header_layout = QHBoxLayout(self.header)
+        header_layout.setContentsMargins(20, 14, 20, 14)
+        
+        # 折叠图标
+        self.toggle_icon = QLabel("▶")
+        header_layout.addWidget(self.toggle_icon)
+        
+        # 标题
+        self.title_label = QLabel(self._title)
+        header_layout.addWidget(self.title_label)
+        
+        header_layout.addStretch()
+        
+        # 摘要（折叠时显示）
+        self.summary_label = QLabel(self._summary)
+        header_layout.addWidget(self.summary_label)
+        
+        self.main_layout.addWidget(self.header)
+        
+        # 内容区域
+        self.content = QWidget()
+        self.content_layout = QVBoxLayout(self.content)
+        self.content_layout.setContentsMargins(20, 0, 20, 16)
+        self.content_layout.setSpacing(12)
+        self.content.setVisible(False)  # 默认隐藏
+        
+        self.main_layout.addWidget(self.content)
+        
+        # 点击事件
+        self.header.mousePressEvent = self._on_header_click
+    
+    def _on_header_click(self, event):
+        self.toggle()
+    
+    def toggle(self):
+        """切换折叠状态"""
+        self._collapsed = not self._collapsed
+        self.content.setVisible(not self._collapsed)
+        self.toggle_icon.setText("▼" if not self._collapsed else "▶")
+        self.summary_label.setVisible(self._collapsed)
+    
+    def set_summary(self, summary: str):
+        """更新摘要"""
+        self._summary = summary
+        self.summary_label.setText(summary)
+    
+    def add_widget(self, widget: QWidget):
+        """添加内容组件"""
+        self.content_layout.addWidget(widget)
+    
+    def add_layout(self, layout):
+        """添加布局"""
+        self.content_layout.addLayout(layout)
+    
+    def apply_theme(self):
+        t = get_theme()
+        self.header.setStyleSheet(f"""
+            QFrame {{
+                background-color: {t.bg_secondary};
+                border: 1px solid {t.border};
+                border-radius: 12px;
+            }}
+            QFrame:hover {{
+                background-color: {t.bg_hover};
+            }}
+        """)
+        self.toggle_icon.setStyleSheet(f"""
+            font-size: 12px;
+            color: {t.text_muted};
+            padding-right: 8px;
+        """)
+        self.title_label.setStyleSheet(f"""
+            font-size: 15px;
+            font-weight: 600;
+            color: {t.text_primary};
+        """)
+        self.summary_label.setStyleSheet(f"""
+            font-size: 12px;
+            color: {t.text_muted};
+        """)
+        self.content.setStyleSheet(f"""
+            background-color: {t.bg_secondary};
+            border: 1px solid {t.border};
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            margin-top: -12px;
+        """)
 
 
 class SettingsPanel(QWidget):
@@ -342,7 +499,7 @@ class SettingsPanel(QWidget):
         scroll_content = QWidget()
         layout = QVBoxLayout(scroll_content)
         layout.setContentsMargins(32, 24, 32, 24)
-        layout.setSpacing(16)
+        layout.setSpacing(20)  # 增加卡片间距
         
         # 页面标题
         self.page_title = QLabel(_("⚙️ 设置"))
@@ -516,13 +673,19 @@ class SettingsPanel(QWidget):
         self.import_btn.clicked.connect(self._import_data)
         data_row.addWidget(self.import_btn)
         
+        self.dashboard_btn = QPushButton("📊 导出仪表盘")
+        self.dashboard_btn.setCursor(Qt.PointingHandCursor)
+        self.dashboard_btn.setFixedHeight(38)
+        self.dashboard_btn.clicked.connect(self._export_dashboard)
+        data_row.addWidget(self.dashboard_btn)
+        
         data_row.addStretch()
         data_layout.addLayout(data_row)
         
         # === 邮件推送设置 ===
         email_frame, email_layout = self._create_card(layout)
         self._create_title(_("📧 邮件推送"), email_layout)
-        self._create_desc(_("每日 12:00 和 22:00 自动发送效率报告"), email_layout)
+        self._create_desc(_("自动发送效率报告到您的邮箱"), email_layout)
         
         # 启用开关行
         enable_row = QHBoxLayout()
@@ -539,6 +702,17 @@ class SettingsPanel(QWidget):
         self.email_enable_btn.clicked.connect(self._toggle_email)
         enable_row.addWidget(self.email_enable_btn)
         email_layout.addLayout(enable_row)
+        
+        # 发送时间配置
+        send_time_label = QLabel("发送时间（可配置多个，用逗号分隔，如 12:00,22:00）")
+        send_time_label.setObjectName("inputLabel")
+        self._descs.append(send_time_label)
+        email_layout.addWidget(send_time_label)
+        
+        self.email_send_times_input = QLineEdit()
+        self.email_send_times_input.setPlaceholderText("12:00,22:00")
+        self.email_send_times_input.setMinimumHeight(40)
+        email_layout.addWidget(self.email_send_times_input)
         
         # 邮箱输入区域（使用网格布局更紧凑）
         email_grid = QVBoxLayout()
@@ -780,9 +954,9 @@ class SettingsPanel(QWidget):
             }}
         """)
         
-        # 页面标题
+        # 页面标题 - 28px, 700
         self.page_title.setStyleSheet(f"""
-            font-size: 22px;
+            font-size: 28px;
             font-weight: 700;
             color: {t.text_primary};
             font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
@@ -901,6 +1075,7 @@ class SettingsPanel(QWidget):
         """
         self.export_btn.setStyleSheet(data_btn_style)
         self.import_btn.setStyleSheet(data_btn_style)
+        self.dashboard_btn.setStyleSheet(data_btn_style)
         
         # 邮件输入框样式
         email_input_style = f"""
@@ -1017,6 +1192,10 @@ class SettingsPanel(QWidget):
         email_enabled = self.storage.get_setting("email_enabled", "false") == "true"
         self.email_enable_btn.setChecked(email_enabled)
         self._update_email_button()
+        
+        # 加载邮件发送时间配置
+        send_times = self.storage.get_setting("email_send_times", "12:00,22:00")
+        self.email_send_times_input.setText(send_times)
     
     def _save_api_config(self):
         """保存 API 配置"""
@@ -1150,6 +1329,28 @@ class SettingsPanel(QWidget):
             __("更重启Dayflow后即可生效。"),
             QMessageBox.Ok
         )
+    
+    def _export_dashboard(self):
+        """导出仪表盘 HTML 报告"""
+        from ui.date_range_dialog import DateRangeDialog
+        from core.dashboard_exporter import DashboardExporter
+        
+        dialog = DateRangeDialog(self)
+        
+        def on_export(start_date, end_date):
+            try:
+                exporter = DashboardExporter(self.storage)
+                path = exporter.export_and_open(start_date, end_date)
+                QMessageBox.information(
+                    self, _("导出成功"), 
+                    _("仪表盘已导出并在浏览器中打开\n\n文件位置:\n{path}")
+                )
+            except Exception as e:
+                logger.error(f"导出仪表盘失败: {e}")
+                QMessageBox.critical(self, "导出失败", f"导出仪表盘时出错: {e}")
+        
+        dialog.range_selected.connect(on_export)
+        dialog.exec()
     
     def _export_data(self):
         """导出数据"""
@@ -1325,6 +1526,24 @@ class SettingsPanel(QWidget):
         auth = self.email_auth_input.text().strip()
         receiver = self.email_receiver_input.text().strip()
         enabled = self.email_enable_btn.isChecked()
+        send_times = self.email_send_times_input.text().strip() or "12:00,22:00"
+        
+        # 验证发送时间格式
+        try:
+            times_list = []
+            for t in send_times.split(","):
+                t = t.strip()
+                if t:
+                    parts = t.split(":")
+                    hour = int(parts[0])
+                    minute = int(parts[1]) if len(parts) > 1 else 0
+                    if not (0 <= hour <= 23 and 0 <= minute <= 59):
+                        raise ValueError(f"无效时间: {t}")
+                    times_list.append(f"{hour:02d}:{minute:02d}")
+            send_times = ",".join(times_list) if times_list else "12:00,22:00"
+        except Exception as e:
+            QMessageBox.warning(self, "时间格式错误", f"发送时间格式不正确: {e}\n请使用 HH:MM 格式，多个时间用逗号分隔")
+            return
         
         # 验证
         if enabled and (not sender or not auth or not receiver):
@@ -1336,6 +1555,7 @@ class SettingsPanel(QWidget):
         self.storage.set_setting("email_auth", auth)
         self.storage.set_setting("email_receiver", receiver)
         self.storage.set_setting("email_enabled", "true" if enabled else "false")
+        self.storage.set_setting("email_send_times", send_times)
         
         QMessageBox.information(self, _("成功"), _("邮件配置已保存"))
     
@@ -1815,6 +2035,8 @@ class MainWindow(QMainWindow):
         self.timeline_view.card_selected.connect(self._on_card_selected)
         self.timeline_view.date_changed.connect(self._on_date_changed)
         self.timeline_view.export_requested.connect(self._on_export_requested)
+        self.timeline_view.card_updated.connect(self._on_card_updated)
+        self.timeline_view.card_deleted.connect(self._on_card_deleted)
         self.stack.addWidget(self.timeline_view)
         
         # 统计页面
@@ -1981,6 +2203,7 @@ class MainWindow(QMainWindow):
             self._update_record_button(True)
             self.recording_indicator.set_recording(True)
             self.tray_record_action.setText(_("⏹ 停止录制"))
+            self.tray_icon.setToolTip(_("Dayflow - 录制中..."))
             self.pause_btn.setEnabled(True)
             self.tray_pause_action.setEnabled(True)
             
@@ -2051,7 +2274,8 @@ class MainWindow(QMainWindow):
             self._start_analysis()
             self._update_record_button(True)
             self.recording_indicator.set_recording(True)
-            self.tray_record_action.setText(_("⏹ 停止录制"))
+            self.tray_record_action.setText("⏹ 停止录制")
+            self.tray_icon.setToolTip(_("Dayflow - 录制中..."))
             self.pause_btn.setEnabled(True)
             self.tray_pause_action.setEnabled(True)
     
@@ -2078,7 +2302,8 @@ class MainWindow(QMainWindow):
         self._update_record_button(False)
         self.recording_indicator.set_recording(False)
         self.tray_record_action.setEnabled(True)
-        self.tray_record_action.setText(_("▶ 开始录制"))
+        self.tray_record_action.setText("▶ 开始录制")
+        self.tray_icon.setToolTip(_("Dayflow - 智能时间追踪"))
         self.pause_btn.setEnabled(False)
         self.pause_btn.setText(_("⏸ 暂停"))
         self.tray_pause_action.setEnabled(False)
@@ -2102,14 +2327,17 @@ class MainWindow(QMainWindow):
             self.recording_manager.resume_recording()
             self.pause_btn.setText(_("⏸ 暂停"))
             self.tray_pause_action.setText(_("⏸ 暂停录制"))
-            self.recording_indicator.set_recording(True)
+            self.recording_indicator.set_recording(True, paused=False)
+            self.tray_icon.setToolTip(_("Dayflow - 录制中..."))
             logger.info("录制已继续")
         else:
             # 暂停录制
             self.recording_manager.pause_recording()
             self.pause_btn.setText(_("▶ 继续"))
             self.tray_pause_action.setText(_("▶ 继续录制"))
-            self.recording_indicator.set_recording(False)
+            self.recording_indicator.set_recording(True, paused=True)
+            elapsed = self.recording_indicator.get_elapsed_time()
+            self.tray_icon.setToolTip(_("Dayflow - 已暂停 {elapsed}").format(elapsed=elapsed))
             logger.info("录制已暂停")
     
     def _update_record_button(self, recording: bool):
@@ -2215,7 +2443,29 @@ class MainWindow(QMainWindow):
     def _on_card_selected(self, card: ActivityCard):
         """卡片被点击"""
         logger.info(f"卡片被点击: {card.title}")
-        # TODO: 显示卡片详情
+        # 现在由 TimelineView 内部处理编辑对话框
+    
+    def _on_card_updated(self, card: ActivityCard):
+        """卡片更新"""
+        success = self.storage.update_card(
+            card_id=card.id,
+            category=card.category,
+            title=card.title,
+            summary=card.summary,
+            productivity_score=card.productivity_score
+        )
+        if success:
+            logger.info(f"卡片已更新: {card.id} - {card.title}")
+        else:
+            QMessageBox.warning(self, "更新失败", "无法保存修改，请重试")
+    
+    def _on_card_deleted(self, card_id: int):
+        """卡片删除"""
+        success = self.storage.delete_card(card_id)
+        if success:
+            logger.info(f"卡片已删除: {card_id}")
+        else:
+            QMessageBox.warning(self, "删除失败", "无法删除记录，请重试")
     
     def _on_api_key_saved(self, api_key: str):
         """API Key 保存后"""
@@ -2366,9 +2616,20 @@ class MainWindow(QMainWindow):
         
         email_service = EmailService(email_config)
         report_generator = ReportGenerator(self.storage)
-        self.email_scheduler = EmailScheduler(email_service, report_generator)
         
-        logger.info("邮件调度器已初始化")
+        # 创建增强版 EmailScheduler，传入 storage 和 tray_icon
+        self.email_scheduler = EmailScheduler(
+            email_service=email_service,
+            report_generator=report_generator,
+            storage=self.storage,
+            config_manager=getattr(self, 'config_manager', None),
+            tray_icon=self.tray_icon
+        )
+        
+        # 应用启动时检查错过的报告
+        self.email_scheduler.on_app_start()
+        
+        logger.info("邮件调度器已初始化（增强版）")
     
     def _check_email_schedule(self):
         """检查是否需要发送定时邮件"""

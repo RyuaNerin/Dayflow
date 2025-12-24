@@ -10,9 +10,13 @@ CREATE TABLE IF NOT EXISTS chunks (
     duration_seconds REAL NOT NULL,
     status TEXT NOT NULL DEFAULT 'pending',  -- pending, processing, completed, failed
     batch_id INTEGER,
+    window_records_path TEXT,  -- 窗口记录 JSON 文件路径
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (batch_id) REFERENCES analysis_batches(id)
 );
+
+-- 为已存在的数据库添加新字段（如果不存在）
+-- SQLite 不支持 IF NOT EXISTS 语法，所以用 ALTER TABLE 会在字段已存在时报错，但不影响使用
 
 -- 分析批次表
 CREATE TABLE IF NOT EXISTS analysis_batches (
@@ -56,3 +60,18 @@ CREATE INDEX IF NOT EXISTS idx_chunks_start_time ON chunks(start_time);
 CREATE INDEX IF NOT EXISTS idx_batches_status ON analysis_batches(status);
 CREATE INDEX IF NOT EXISTS idx_cards_start_time ON timeline_cards(start_time);
 CREATE INDEX IF NOT EXISTS idx_cards_category ON timeline_cards(category);
+
+
+-- 邮件发送记录表
+CREATE TABLE IF NOT EXISTS email_send_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    period TEXT NOT NULL,  -- 'noon', 'night', 或自定义时间标识
+    send_time TIMESTAMP NOT NULL,
+    success INTEGER NOT NULL DEFAULT 1,
+    error_message TEXT,
+    retry_count INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_email_send_log_period ON email_send_log(period);
+CREATE INDEX IF NOT EXISTS idx_email_send_log_time ON email_send_log(send_time);
