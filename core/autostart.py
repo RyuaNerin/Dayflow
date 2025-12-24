@@ -111,7 +111,7 @@ def enable_autostart() -> tuple:
         return False, _("权限不足，请以管理员身份运行")
     except Exception as e:
         logger.error(f"启用自启动失败: {e}")
-        return False, _("启用失败: {}").format(e)
+        return False, _("启用失败: {e}").format(e)
 
 
 def disable_autostart() -> tuple:
@@ -143,7 +143,7 @@ def disable_autostart() -> tuple:
         return False, _("权限不足，请以管理员身份运行")
     except Exception as e:
         logger.error(f"禁用自启动失败: {e}")
-        return False, _("禁用失败: {}").format(e)
+        return False, _("禁用失败: {e}").format(e)
 
 
 def check_path_changed() -> tuple:

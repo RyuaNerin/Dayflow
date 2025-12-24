@@ -87,8 +87,8 @@ msgstr "토요일"
 msgid "周日"
 msgstr "일요일"
 
-msgid "{}，{}"
-msgstr "{}, {}"
+msgid "{date_text}，{weekday}"
+msgstr "{date_text}，{weekday}"
 
 msgid "{card_count} 个活动 · {total_hours:.1f} 小时"
 msgstr "{card_count}개 활동 · {total_hours:.1f}시간"

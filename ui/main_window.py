@@ -611,7 +611,7 @@ class SettingsPanel(QWidget):
         # === 软件更新 ===
         update_frame, update_layout = self._create_card(layout)
         self._create_title(_("🔄 软件更新"), update_layout)
-        self.update_version_label = QLabel(_("当前版本: v{}").format(config.VERSION))
+        self.update_version_label = QLabel(_("当前版本: v{version}").format(version=config.VERSION))
         self.update_version_label.setObjectName("cardDesc")
         self._descs.append(self.update_version_label)
         update_layout.addWidget(self.update_version_label)
@@ -711,7 +711,7 @@ class SettingsPanel(QWidget):
         about_frame, about_layout = self._create_card(layout)
         self._create_title(_("ℹ️ 关于 Dayflow"), about_layout)
 
-        about_text = QLabel(_("Windows 版本 {}\n智能时间追踪与生产力分析工具").format(config.VERSION))
+        about_text = QLabel(_("Windows 版本 {version}\n智能时间追踪与生产力分析工具").format(version=config.VERSION))
         about_text.setObjectName("cardDesc")
         about_text.setWordWrap(True)
         self._descs.append(about_text)
@@ -1159,7 +1159,7 @@ class SettingsPanel(QWidget):
                 _("已导出 {len} 条活动记录\n保存到: {file_path}").format(len=len(data["cards"]), file_path=file_path)
             )
         except Exception as e:
-            QMessageBox.critical(self, _("导出失败"), _("导出数据时出错: {}").format(e))
+            QMessageBox.critical(self, _("导出失败"), _("导出数据时出错: {e}").format(e=e))
     
     def _import_data(self):
         """导入数据"""
@@ -1234,7 +1234,7 @@ class SettingsPanel(QWidget):
                 _("成功导入 {imported_count} 条记录\n跳过 {skipped_count} 条重复记录").format(imported_count=imported_count, skipped_count=skipped_count)
             )
         except Exception as e:
-            QMessageBox.critical(self, _("导入失败"), _("导入数据时出错: {}").format(e))
+            QMessageBox.critical(self, _("导入失败"), _("导入数据时出错: {e}").format(e))
     
     def _toggle_email(self):
         """切换邮件推送状态"""
@@ -1376,7 +1376,7 @@ class SettingsPanel(QWidget):
         self.email_test_btn.setText(_("📨 发送测试邮件"))
         
         t = get_theme()
-        self.email_result_label.setText(_("❌ 发送失败: {}").format(error))
+        self.email_result_label.setText(_("❌ 发送失败: {e}").format(e=error))
         self.email_result_label.setStyleSheet(f"font-size: 13px; color: {t.error}; padding: 8px 0;")
     
     # ========== 软件更新相关方法 ==========
@@ -1418,7 +1418,7 @@ class SettingsPanel(QWidget):
         t = get_theme()
         
         if has_update:
-            self.update_status_label.setText(_("发现新版本: v{}").format(latest_version))
+            self.update_status_label.setText(_("发现新版本: v{version}").format(version=latest_version))
             self.update_status_label.setStyleSheet(f"font-size: 13px; color: {t.success}; font-weight: 600;")
             self.download_btn.show()
             self._latest_version = latest_version
@@ -1483,7 +1483,7 @@ class SettingsPanel(QWidget):
         
         msg = QMessageBox(self)
         msg.setWindowTitle(_("下载失败"))
-        msg.setText(_("自动下载失败：{}").format(error))
+        msg.setText(_("自动下载失败：{e}").format(e=error))
         msg.setInformativeText(_("您可以尝试手动下载："))
         
         github_btn = msg.addButton(_("GitHub 下载"), QMessageBox.ActionRole)
@@ -1550,7 +1550,7 @@ class SettingsPanel(QWidget):
             scrollbar.setValue(scrollbar.maximum())
             
         except Exception as e:
-            self.log_text.setPlainText(_("❌ 读取日志失败: {}").format(e))
+            self.log_text.setPlainText(_("❌ 读取日志失败: {e}").format(e=e))
     
     def _open_log_folder(self):
         """打开日志所在目录"""

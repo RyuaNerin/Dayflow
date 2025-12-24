@@ -128,8 +128,8 @@ msgstr "{len}개의 활동 기록을 내보냈습니다\n저장 위치: {file_pa
 msgid "导出失败"
 msgstr "내보내기 실패"
 
-msgid "导出数据时出错: {}"
-msgstr "데이터 내보내기 중 오류: {}"
+msgid "导出数据时出错: {e}"
+msgstr "데이터 내보내기 중 오류: {e}"
 
 msgid "导入数据"
 msgstr "데이터 가져오기"
@@ -149,8 +149,8 @@ msgstr "{imported_count}개의 기록을 가져왔습니다\n{skipped_count}개�
 msgid "导入失败"
 msgstr "가져오기 실패"
 
-msgid "导入数据时出错: {}"
-msgstr "데이터 가져오기 중 오류: {}"
+msgid "导入数据时出错: {e}"
+msgstr "데이터 가져오기 중 오류: {e}"
 
 #: ui/main_window.py - Email Settings
 msgid "📧 邮件推送"
@@ -210,8 +210,8 @@ msgstr "✅ 테스트 이메일이 성공적으로 발송되었습니다! 받은
 msgid "❌ 发送失败，请检查邮箱配置"
 msgstr "❌ 발송 실패, 이메일 설정을 확인해주세요"
 
-msgid "❌ 发送失败: {}"
-msgstr "❌ 발송 실패: {}"
+msgid "❌ 发送失败: {e}"
+msgstr "❌ 발송 실패: {e}"
 
 msgid "📨 发送测试邮件"
 msgstr "📨 테스트 이메일 발송"
@@ -239,8 +239,8 @@ msgstr "개발 모드에서는 사용 불가"
 msgid "🔄 软件更新"
 msgstr "🔄 소프트웨어 업데이트"
 
-msgid "当前版本: v{}"
-msgstr "현재 버전: v{}"
+msgid "当前版本: v{verseion}"
+msgstr "현재 버전: v{verseion}"
 
 msgid "🔍 检查更新"
 msgstr "🔍 업데이트 확인"
@@ -251,8 +251,8 @@ msgstr "확인 중..."
 msgid "正在检查..."
 msgstr "확인 중..."
 
-msgid "发现新版本: v{}"
-msgstr "새 버전 발견: v{}"
+msgid "发现新版本: v{verseion}"
+msgstr "새 버전 발견: v{verseion}"
 
 msgid "已是最新版本 ✓"
 msgstr "최신 버전입니다 ✓"
@@ -269,8 +269,8 @@ msgstr "다운로드 완료, 설치하려면 클릭하세요"
 msgid "下载失败"
 msgstr "다운로드 실패"
 
-msgid "自动下载失败：{}"
-msgstr "자동 다운로드 실패: {}"
+msgid "自动下载失败：{e}"
+msgstr "자동 다운로드 실패: {e}"
 
 msgid "您可以尝试手动下载："
 msgstr "수동으로 다운로드를 시도할 수 있습니다:"
@@ -318,8 +318,8 @@ msgstr "📄 로그 접기"
 msgid "点击「查看日志」加载日志内容..."
 msgstr "「로그 보기」를 클릭하여 로그 내용을 불러오세요..."
 
-msgid "❌ 读取日志失败: {}"
-msgstr "❌ 로그 읽기 실패: {}"
+msgid "❌ 读取日志失败: {e}"
+msgstr "❌ 로그 읽기 실패: {e}"
 
 msgid "提示"
 msgstr "알림"
@@ -328,8 +328,8 @@ msgstr "알림"
 msgid "ℹ️ 关于 Dayflow"
 msgstr "ℹ️ Dayflow 정보"
 
-msgid "Windows 版本 {}\n智能时间追踪与生产力分析工具"
-msgstr "Windows 버전 {}\n스마트 시간 추적 및 생산성 분석 도구"
+msgid "Windows 版本 {version}\n智能时间追踪与生产力分析工具"
+msgstr "Windows 버전 {version}\n스마트 시간 추적 및 생산성 분석 도구"
 
 #: ui/main_window.py - Sidebar Navigation
 msgid "时间轴"
@@ -430,7 +430,7 @@ msgid "生产力评分"
 msgstr "생산성 점수"
 
 msgid "数据已导出到:\n{file_path}"
-msgstr "데이터가 내보내졌습니다:\n{file_path}"
+msgstr "데이터를 내보냈습니다.:\n{file_path}"
 
 msgid "错误"
 msgstr "오류"

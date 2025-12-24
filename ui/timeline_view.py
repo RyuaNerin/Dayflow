@@ -583,7 +583,7 @@ class TimelineHeader(QWidget):
         weekday_names = [_("周一"), _("周二"), _("周三"), _("周四"), _("周五"), _("周六"), _("周日")]
         weekday = weekday_names[self._current_date.weekday()]
 
-        self.date_label.setText(_("{}，{}").format(date_text, weekday))
+        self.date_label.setText(_("{date_text}，{weekday}").format(date_text=date_text, weekday=weekday))
     
     def set_date(self, date: datetime):
         self._current_date = date

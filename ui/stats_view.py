@@ -356,7 +356,7 @@ class GoalWidget(QWidget):
 
         # 进度文字
         self.progress_label.setText(
-            _("今日进度: {:.1f}h / {}h").format(self._current_hours, self._goal_hours)
+            _("今日进度: {current:.1f}h / {goals}h").format(current=self._current_hours, goals=self._goal_hours)
         )
 
         # 进度条
