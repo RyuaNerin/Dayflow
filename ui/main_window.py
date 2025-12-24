@@ -262,7 +262,7 @@ class RecordingIndicator(QWidget):
             elapsed = (datetime.now() - self._start_time).total_seconds()
             self._elapsed_seconds = int(elapsed)
             duration_str = self._format_duration(self._elapsed_seconds)
-            self.status_label.setText(f"录制中 {duration_str}")
+            self.status_label.setText(_("录制中 {duration_str}").format(duration_str=duration_str))
     
     def _apply_idle_theme(self):
         if not self._recording:

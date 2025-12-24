@@ -39,6 +39,9 @@ msgstr "녹화 중지됨"
 msgid "录制中 00:00:00"
 msgstr "녹화 중 00:00:00"
 
+msgid "录制中 {duration_str}"
+msgstr "녹화 중 {duration_str}"
+
 msgid "已暂停 {duration_str}"
 msgstr "일시정지됨 {duration_str}"
 
@@ -254,8 +257,8 @@ msgstr "개발 모드에서는 사용 불가"
 msgid "🔄 软件更新"
 msgstr "🔄 소프트웨어 업데이트"
 
-msgid "当前版本: v{verseion}"
-msgstr "현재 버전: v{verseion}"
+msgid "当前版本: v{version}"
+msgstr "현재 버전: v{version}"
 
 msgid "🔍 检查更新"
 msgstr "🔍 업데이트 확인"
@@ -266,8 +269,8 @@ msgstr "확인 중..."
 msgid "正在检查..."
 msgstr "확인 중..."
 
-msgid "发现新版本: v{verseion}"
-msgstr "새 버전 발견: v{verseion}"
+msgid "发现新版本: v{version}"
+msgstr "새 버전 발견: v{version}"
 
 msgid "已是最新版本 ✓"
 msgstr "최신 버전입니다 ✓"
