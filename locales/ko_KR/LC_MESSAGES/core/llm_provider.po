@@ -106,8 +106,8 @@ msgstr ""
 
 #: backend_provider.py:transcribe_video
 #. Message for video frame analysis request
-msgid "以下是一段 {duration:.0f} 秒屏幕录制的 {frames} 个关键帧，请分析用户的活动。{prompt}"
-msgstr "{duration:.0f}초 화면 녹화의 {frames}개 키프레임입니다. 사용자의 활동을 분석해주세요.{prompt}"
+msgid "以下是一段 {duration:.0f} 秒屏幕录制的 {frames} 个关键帧，请分析用户的活动。{window_info_text}{prompt}"
+msgstr "{duration:.0f}초 화면 녹화의 {frames}개 키프레임입니다. 사용자의 활동을 분석해주세요.{window_info_text}{prompt}"
 
 #: backend_provider.py:generate_activity_cards
 #. Label for observation records section

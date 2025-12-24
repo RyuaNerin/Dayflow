@@ -87,8 +87,20 @@ msgstr "시간 분포"
 msgid "生产力趋势"
 msgstr "생산성 추세"
 
+msgid "时段效率分布"
+msgstr "시간대 효율 분포"
+
+msgid "类别分布"
+msgstr "카테고리 분포"
+
 msgid "今日目标"
 msgstr "오늘의 목표"
+
+msgid "本周 vs 上周"
+msgstr "이번 주 vs 지난 주"
+
+msgid "应用 / 网站使用"
+msgstr "앱 / 웹 사용"
 
 msgid "日期对比"
 msgstr "날짜 비교"
