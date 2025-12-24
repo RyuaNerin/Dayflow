@@ -13,6 +13,8 @@ API_BASE_URL = os.getenv("DAYFLOW_API_URL", "https://apis.iflow.cn/v1")
 API_KEY = os.getenv("DAYFLOW_API_KEY", "")
 API_MODEL = os.getenv("DAYFLOW_API_MODEL", "qwen3-vl-plus")  # 支持视觉输入的模型
 
+DEFAULT_LANGUAGE = "zh_CN"
+
 # 录屏配置
 RECORD_FPS = 1  # 每秒1帧
 CHUNK_DURATION_SECONDS = 60  # 每60秒一个切片

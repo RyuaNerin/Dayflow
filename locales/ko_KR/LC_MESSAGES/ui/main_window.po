@@ -401,6 +401,15 @@ msgstr "종료 확인"
 msgid "确定要退出 Dayflow 吗？\n\n点击「否」将最小化到系统托盘。"
 msgstr "Dayflow를 종료하시겠습니까?\n\n「아니오」를 클릭하면 시스템 트레이로 최소화됩니다."
 
+msgid "🌐 语言"
+msgstr "🌐 언어"
+
+msgid "更改语言"
+msgstr "언어 변경"
+
+msgid "重启Dayflow后即可生效。"
+msgstr "Dayflow 재시작 후 적용됩니다."
+
 #: ui/main_window.py - Export CSV
 msgid "当前日期没有数据可导出"
 msgstr "현재 날짜에 내보낼 데이터가 없습니다"

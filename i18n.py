@@ -11,7 +11,7 @@ Example:
     core/analysis.py -> locales/ko_KR/LC_MESSAGES/core/analysis.mo
 """
 from pathlib import Path
-from typing import Optional, Dict
+from typing import List, Optional, Dict
 
 from babel.support import Translations, NullTranslations
 from babel.messages.pofile import read_po
@@ -38,6 +38,28 @@ class MultiDomainTranslator:
         self.language = language
         self.locales_dir = locales_dir
         self._cache: Dict[str, NullTranslations] = {}
+        
+    def load_all_translations(self):
+        """
+        Pre-load all available .mo files for the current language.
+
+        This ensures the translator has access to all translation domains.
+        """
+        # Find all .mo files for the current language
+        lang_dir = _locales_dir / self.language / 'LC_MESSAGES'
+
+        if not lang_dir.exists():
+            return
+
+        # Recursively find all .mo files
+        for mo_file in lang_dir.rglob('*.mo'):
+            # Convert file path to domain name
+            # e.g., locales/ko_KR/LC_MESSAGES/core/analysis.mo -> core/analysis
+            rel_path = mo_file.relative_to(lang_dir)
+            domain = str(rel_path.with_suffix('')).replace('\\', '/')
+
+            # Load the translation for this domain
+            self.get_translation(domain)
 
     def get_translation(self, domain: str):
         """Get translation for a specific domain (module path)."""
@@ -96,6 +118,32 @@ def _(message: str) -> str:
 
     return _translator.gettext(message)
 
+def load_translations(language: str) -> Optional[MultiDomainTranslator]:
+    """
+    Load translations for the specified language.
+
+    Args:
+        language: Language code (e.g., 'ko_KR', 'en', 'zh_CN')
+        
+    Returns:
+        MultiDomainTranslator instance or None if no translation needed
+    """
+
+    # Default to simplified Chinese
+    if language is None:
+        language = config.DEFAULT_LANGUAGE
+
+    # Default to simplified Chinese (no translation needed since source is in Chinese)
+    if language == config.DEFAULT_LANGUAGE:
+        return None
+
+    # Create multi-domain translator
+    translator = MultiDomainTranslator(language, _locales_dir)
+
+    if translator is not None:
+        translator.load_all_translations()
+
+    return translator
 
 def init_i18n(language: Optional[str] = None, storage=None) -> None:
     """
@@ -114,58 +162,26 @@ def init_i18n(language: Optional[str] = None, storage=None) -> None:
         try:
             language = storage.get_setting('language', config.DEFAULT_LANGUAGE)
         except Exception:
-            language = 'zh_CN'
+            language = config.DEFAULT_LANGUAGE
 
-    # Default to simplified Chinese
-    if language is None:
-        language = 'zh_CN'
-
+    _translator = load_translations(language)
     _current_language = language
-
-    # Default to simplified Chinese (no translation needed since source is in Chinese)
-    if language == 'zh_CN':
-        _translator = None
-        return
-
-    # Create multi-domain translator
-    _translator = MultiDomainTranslator(language, _locales_dir)
-
-    # Pre-load all available translation domains
-    _load_all_translations()
-
-
-def _load_all_translations():
-    """
-    Pre-load all available .mo files for the current language.
-
-    This ensures the translator has access to all translation domains.
-    """
-    global _translator, _current_language
-
-    if _translator is None or _current_language == 'zh_CN':
-        return
-
-    # Find all .mo files for the current language
-    lang_dir = _locales_dir / _current_language / 'LC_MESSAGES'
-
-    if not lang_dir.exists():
-        return
-
-    # Recursively find all .mo files
-    for mo_file in lang_dir.rglob('*.mo'):
-        # Convert file path to domain name
-        # e.g., locales/ko_KR/LC_MESSAGES/core/analysis.mo -> core/analysis
-        rel_path = mo_file.relative_to(lang_dir)
-        domain = str(rel_path.with_suffix('')).replace('\\', '/')
-
-        # Load the translation for this domain
-        _translator.get_translation(domain)
 
 
 def get_current_language() -> str:
     """Get the current language code."""
     return _current_language
 
+
+def get_supported_languages() -> List[str]:
+    ret = []
+    ret.append(config.DEFAULT_LANGUAGE)
+    for lang_dir in _locales_dir.iterdir():
+        lang = lang_dir.name
+        if (lang_dir.is_dir() and lang not in ret):
+            ret.append(lang)
+
+    return list(ret)
 
 def reload_translations(language: Optional[str] = None, storage=None):
     """

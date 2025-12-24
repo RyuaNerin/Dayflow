@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (
     QLabel, QPushButton, QStackedWidget, QFrame,
     QLineEdit, QMessageBox, QSystemTrayIcon, QMenu,
     QApplication, QSizePolicy, QSpacerItem, QFileDialog,
-    QScrollArea, QProgressBar
+    QScrollArea, QProgressBar, QComboBox
 )
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtCore import QUrl
@@ -24,8 +24,7 @@ from ui.stats_view import StatsPanel
 from ui.themes import get_theme_manager, get_theme
 from core.types import ActivityCard
 from database.storage import StorageManager
-from i18n import _
-
+from i18n import _, get_supported_languages, get_current_language, load_translations
 logger = logging.getLogger(__name__)
 
 
@@ -434,6 +433,7 @@ class SettingsPanel(QWidget):
         
         self._create_title(_("🎨 外观"), theme_layout)
         
+        # 主题模式
         theme_content = QHBoxLayout()
         self.theme_label = QLabel(_("主题模式"))
         self.theme_label.setObjectName("cardDesc")
@@ -447,6 +447,35 @@ class SettingsPanel(QWidget):
         self.theme_toggle.clicked.connect(self._toggle_theme)
         theme_content.addWidget(self.theme_toggle)
         theme_layout.addLayout(theme_content)
+        
+        # 选择语言
+        language_frame = QHBoxLayout()
+        self.language_label = QLabel(_("🌐 语言"))
+        self.language_label.setObjectName("cardDesc")
+        self._descs.append(self.language_label)
+        language_frame.addWidget(self.language_label)
+        language_frame.addStretch()
+        
+        self.language_select = QComboBox()
+        self.language_select.setCursor(Qt.PointingHandCursor)
+        self.language_select.setFixedSize(150, 34)
+        # 直接从 i18n 获取支持的语言列表
+        
+        for lang_code in get_supported_languages():
+            self.language_select.addItem(lang_code, lang_code)
+        
+        # 设置当前语言
+        current_lang = get_current_language()
+        for i in range(self.language_select.count()):
+            if self.language_select.itemData(i) == current_lang:
+                self.language_select.setCurrentIndex(i)
+                break
+        
+        # 连接语言切换信号
+        self.language_select_messagebox_shown = False
+        self.language_select.currentIndexChanged.connect(self._on_language_changed)
+        language_frame.addWidget(self.language_select)
+        theme_layout.addLayout(language_frame)
         
         settings_row.addWidget(theme_frame)
         
@@ -1101,6 +1130,26 @@ class SettingsPanel(QWidget):
             self.theme_toggle.setText(_("🌙 暗色"))
         else:
             self.theme_toggle.setText(_("☀️ 亮色"))
+    
+    def _on_language_changed(self):
+        lang = self.language_select.currentData()
+        self.storage.set_setting("language", lang)
+        
+        if get_current_language() == lang:
+            return
+        
+        self.language_select_messagebox_shown = True
+        translator = load_translations(lang)
+        
+        def __(text):
+            return translator.gettext(text) if translator else text
+        
+        QMessageBox.question(
+            self,
+            __("更改语言"),
+            __("更重启Dayflow后即可生效。"),
+            QMessageBox.Ok
+        )
     
     def _export_data(self):
         """导出数据"""
