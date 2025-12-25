@@ -434,8 +434,8 @@ msgstr "🌐 언어"
 msgid "更改语言"
 msgstr "언어 변경"
 
-msgid "重启Dayflow后即可生效。"
-msgstr "Dayflow 재시작 후 적용됩니다."
+msgid "更重启Dayflow后即可生效。"
+msgstr "Dayflow를 재시작한 후 적용됩니다."
 
 #: ui/main_window.py - Export CSV
 msgid "当前日期没有数据可导出"

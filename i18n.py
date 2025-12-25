@@ -38,8 +38,9 @@ class MultiDomainTranslator:
         self.language = language
         self.locales_dir = locales_dir
         self._cache: Dict[str, NullTranslations] = {}
+        self._load_all_translations()
         
-    def load_all_translations(self):
+    def _load_all_translations(self):
         """
         Pre-load all available .mo files for the current language.
 
@@ -138,12 +139,7 @@ def load_translations(language: str) -> Optional[MultiDomainTranslator]:
         return None
 
     # Create multi-domain translator
-    translator = MultiDomainTranslator(language, _locales_dir)
-
-    if translator is not None:
-        translator.load_all_translations()
-
-    return translator
+    return MultiDomainTranslator(language, _locales_dir)
 
 def init_i18n(language: Optional[str] = None, storage=None) -> None:
     """
@@ -182,17 +178,6 @@ def get_supported_languages() -> List[str]:
             ret.append(lang)
 
     return list(ret)
-
-def reload_translations(language: Optional[str] = None, storage=None):
-    """
-    Reload translations, useful when language setting changes.
-
-    Args:
-        language: New language code
-        storage: Storage instance to read language preference from
-    """
-    init_i18n(language, storage)
-
 
 def compile_po(po_file: Path):
     """
