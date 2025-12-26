@@ -199,11 +199,3 @@ def compile_po(po_file: Path):
     
     with open(mo_file, 'wb') as fs:
         write_mo(fs, catalog)
-
-def build_po():
-    for po_file in _locales_dir.rglob('*.po'):
-        print(f"Compiling... {po_file}")
-        compile_po(po_file)
-
-if __name__ == "__main__":
-    build_po()
