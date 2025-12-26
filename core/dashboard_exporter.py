@@ -101,7 +101,7 @@ class DashboardExporter:
         if dev_path.exists():
             return dev_path
         
-        raise FileNotFoundError("模板目录不存在")
+        raise FileNotFoundError(_("模板目录不存在"))
     
     def export(
         self, 

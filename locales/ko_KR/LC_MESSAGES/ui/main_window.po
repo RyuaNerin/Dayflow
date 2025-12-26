@@ -342,6 +342,9 @@ msgstr "❌ 로그 읽기 실패: {e}"
 msgid "提示"
 msgstr "알림"
 
+msgid "日志目录不存在:\n{log_dir}"
+msgstr "로그 폴더가 존재하지 않습니다:\n{log_dir}"
+
 #: ui/main_window.py - About
 msgid "ℹ️ 关于 Dayflow"
 msgstr "ℹ️ Dayflow 정보"
@@ -479,3 +482,27 @@ msgstr "오류"
 
 msgid "导出失败: {e}"
 msgstr "내보내기 실패: {e}"
+
+msgid "无效时间: {t}"
+msgstr "잘못된 시간: {t}"
+
+msgid "时间格式错误"
+msgstr "시간 형식 오류"
+
+msgid "发送时间格式不正确: {e}\n请使用 HH:MM 格式，多个时间用逗号分隔"
+msgstr "보내기 시간 형식이 올바르지 않습니다: {e}\nHH:MM 형식을 사용하고 여러 시간은 쉼표로 구분해주세요"
+
+msgid "更新失败"
+msgstr "업데이트 실패"
+
+msgid "无法保存修改，请重试"
+msgstr "변경 사항을 저장할 수 없습니다. 다시 시도해주세요"
+
+msgid "删除失败"
+msgstr "삭제 실패"
+
+msgid "无法删除记录，请重试"
+msgstr "기록을 삭제할 수 없습니다. 다시 시도해주세요"
+
+msgid "取消"
+msgstr "취소"

@@ -227,7 +227,7 @@ class DayflowBackendProvider:
         """
         video_file = Path(video_path)
         if not video_file.exists():
-            raise FileNotFoundError(f"视频文件不存在: {video_path}")
+            raise FileNotFoundError(_("视频文件不存在: {video_path}").format(video_path=video_path))
         
         # 提取视频帧
         frames = self._extract_frames_from_video(video_path, max_frames=8)

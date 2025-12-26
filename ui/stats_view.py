@@ -1202,7 +1202,7 @@ class WeekCompareWidget(QWidget):
         card_layout.addWidget(title_label)
         
         # 数值
-        if unit == "分钟":
+        if unit == _("分钟"):
             hours = this_val / 60
             value_text = f"{hours:.1f}h"
         else:

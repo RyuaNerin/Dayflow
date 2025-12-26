@@ -13,6 +13,8 @@ from queue import Queue, Empty, Full
 from typing import Optional
 from contextlib import contextmanager
 
+from i18n import _
+
 logger = logging.getLogger(__name__)
 
 
@@ -152,7 +154,7 @@ class ConnectionPool:
             PoolExhaustedError: 连接池耗尽且超时
         """
         if self._closed:
-            raise RuntimeError("连接池已关闭")
+            raise RuntimeError(_("连接池已关闭"))
         
         start_time = time.time()
         
@@ -178,7 +180,7 @@ class ConnectionPool:
             elapsed = time.time() - start_time
             if elapsed >= self.timeout:
                 raise PoolExhaustedError(
-                    f"连接池耗尽，等待 {self.timeout} 秒后超时"
+                    _("连接池耗尽，等待 {timeout} 秒后超时").format(timeout=self.timeout)
                 )
             
             # 短暂等待后重试

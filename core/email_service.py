@@ -572,7 +572,7 @@ class AICommentGenerator:
             if switching.get('has_data'):
                 switching_data = _("- 总切换次数: {total_switches}次").format(total_switches=switching['total_switches'])
                 if switching.get('common_patterns'):
-                    patterns = [f"{p[0]}({p[1]}次)" for p in switching['common_patterns']]
+                    patterns = [_("{p0}({p1}次)").format(p0=[0], p1=p[1]) for p in switching['common_patterns']]
                     switching_data += _("\n- 常见切换: {patterns}").format(patterns=', '.join(patterns))
             else:
                 switching_data = _("切换较少或无数据")
@@ -690,7 +690,7 @@ class AICommentGenerator:
             
             # 切换数据
             if switching.get('has_data'):
-                switching_data = f"- {_("类别切换总次数")}: {switching['total_switches']}次"
+                switching_data = _("- 类别切换总次数: {total_switches}次").format(total_switches=switching['total_switches'])
                 if switching.get('common_patterns'):
                     patterns = [_("{p0}（{p1}次）".format(p0=p[0], p1=[1])) for p in switching['common_patterns']]
                     switching_data += f"\n- {_("高频切换模式")}: {', '.join(patterns)}"
@@ -982,7 +982,7 @@ class ReportGenerator:
             <h1 style="margin: 0; color: white; font-size: 22px; font-weight: 600;">📊 Dayflow {_('深度分析报告')}</h1>
             <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">{date_str}</p>
             <div style="margin-top: 12px; display: inline-block; background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px;">
-                <span style="color: white; font-size: 13px;">{day_type.get('type', '常规日')}</span>
+                <span style="color: white; font-size: 13px;">{day_type.get('type', _('常规日'))}</span>
             </div>
         </div>
         
@@ -1093,7 +1093,7 @@ class ReportGenerator:
                 bar_width = (score / max_score * 100) if max_score > 0 else 0
                 is_peak = (rhythm.get('peak_hour', -1) >= 6 and rhythm.get('peak_hour', -1) < 12 and _('上午') in name) or \
                          (rhythm.get('peak_hour', -1) >= 12 and rhythm.get('peak_hour', -1) < 18 and _('下午') in name) or \
-                         (rhythm.get('peak_hour', -1) >= 18 and '晚上' in name)
+                         (rhythm.get('peak_hour', -1) >= 18 and _('晚上') in name)
                 
                 rhythm_bars += f"""
                 <div style="margin-bottom: 8px;">
@@ -1111,7 +1111,7 @@ class ReportGenerator:
                 <div style="font-weight: 600; color: #334155; font-size: 13px; margin-bottom: 10px;">{_('⏰ 时段效率')}</div>
                 {rhythm_bars}
                 <div style="margin-top: 8px; font-size: 12px; color: #64748B;">
-                    {('效率峰值: {peak_hour}:00 ({peak_score}分) · 低谷: {low_hour}:00 ({low_score}分)').format(
+                    {_('效率峰值: {peak_hour}:00 ({peak_score}分) · 低谷: {low_hour}:00 ({low_score}分)').format(
                         peak_hour=rhythm.get('peak_hour', ''),
                         peak_score=rhythm.get('peak_score', 0),
                         low_hour=rhythm.get('low_hour', ''),
@@ -1175,7 +1175,7 @@ class ReportGenerator:
                             <div style="font-size: 11px; color: #92400E;">{_('效率较低')}</div>
                             <div style="font-size: 15px; font-weight: 600; color: #B45309; margin: 4px 0;">{worst}</div>
                             <div style="font-size: 18px; font-weight: 700; color: #92400E;">{_('{avg_score}分').format(avg_score=worst_data.get('avg_score', 0))}</div>
-                            <div style="font-size: 11px; color: #92400E;">{worst_data.get('session_count', 0)}段 · {worst_data.get('total_mins', 0)}分钟</div>
+                            <div style="font-size: 11px; color: #92400E;">{_('{session_count}段 · {total_mins}分钟').format(session_count=worst_data.get('session_count', 0), total_mins=worst_data.get('total_mins', 0))}</div>
                         </div>
                     </div>
                 </div>"""

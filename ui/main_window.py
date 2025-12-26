@@ -1538,11 +1538,11 @@ class SettingsPanel(QWidget):
                     hour = int(parts[0])
                     minute = int(parts[1]) if len(parts) > 1 else 0
                     if not (0 <= hour <= 23 and 0 <= minute <= 59):
-                        raise ValueError(f"无效时间: {t}")
+                        raise ValueError(_("无效时间: {t}").format(t=t))
                     times_list.append(f"{hour:02d}:{minute:02d}")
             send_times = ",".join(times_list) if times_list else "12:00,22:00"
         except Exception as e:
-            QMessageBox.warning(self, "时间格式错误", f"发送时间格式不正确: {e}\n请使用 HH:MM 格式，多个时间用逗号分隔")
+            QMessageBox.warning(self, _("时间格式错误"), _(" 发送时间格式不正确: {e}\n请使用 HH:MM 格式，多个时间用逗号分隔").format(e=e))
             return
         
         # 验证
@@ -1757,7 +1757,7 @@ class SettingsPanel(QWidget):
         
         github_btn = msg.addButton(_("GitHub 下载"), QMessageBox.ActionRole)
         mirror_btn = msg.addButton(_("镜像下载(国内加速)"), QMessageBox.ActionRole)
-        msg.addButton("取消", QMessageBox.RejectRole)
+        msg.addButton(_("取消"), QMessageBox.RejectRole)
         
         msg.exec()
         
@@ -1830,7 +1830,7 @@ class SettingsPanel(QWidget):
             # Windows 打开文件夹
             subprocess.run(['explorer', str(log_dir)])
         else:
-            QMessageBox.warning(self, _("提示"), f"日志目录不存在:\n{log_dir}")
+            QMessageBox.warning(self, _("提示"), _("日志目录不存在:\n{log_dir}").format(log_dir=log_dir))
     
     def _init_autostart_status(self):
         """初始化自启动状态"""
@@ -2274,7 +2274,7 @@ class MainWindow(QMainWindow):
             self._start_analysis()
             self._update_record_button(True)
             self.recording_indicator.set_recording(True)
-            self.tray_record_action.setText("⏹ 停止录制")
+            self.tray_record_action.setText(_("⏹ 停止录制"))
             self.tray_icon.setToolTip(_("Dayflow - 录制中..."))
             self.pause_btn.setEnabled(True)
             self.tray_pause_action.setEnabled(True)
@@ -2302,7 +2302,7 @@ class MainWindow(QMainWindow):
         self._update_record_button(False)
         self.recording_indicator.set_recording(False)
         self.tray_record_action.setEnabled(True)
-        self.tray_record_action.setText("▶ 开始录制")
+        self.tray_record_action.setText(_("▶ 开始录制"))
         self.tray_icon.setToolTip(_("Dayflow - 智能时间追踪"))
         self.pause_btn.setEnabled(False)
         self.pause_btn.setText(_("⏸ 暂停"))
@@ -2457,7 +2457,7 @@ class MainWindow(QMainWindow):
         if success:
             logger.info(f"卡片已更新: {card.id} - {card.title}")
         else:
-            QMessageBox.warning(self, "更新失败", "无法保存修改，请重试")
+            QMessageBox.warning(self, _("更新失败"), _("无法保存修改，请重试"))
     
     def _on_card_deleted(self, card_id: int):
         """卡片删除"""
@@ -2465,7 +2465,7 @@ class MainWindow(QMainWindow):
         if success:
             logger.info(f"卡片已删除: {card_id}")
         else:
-            QMessageBox.warning(self, "删除失败", "无法删除记录，请重试")
+            QMessageBox.warning(self, _("删除失败"), _("无法删除记录，请重试"))
     
     def _on_api_key_saved(self, api_key: str):
         """API Key 保存后"""

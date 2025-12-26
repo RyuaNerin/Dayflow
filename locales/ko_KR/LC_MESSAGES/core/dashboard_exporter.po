@@ -13,3 +13,6 @@ msgstr "%Y년 %m월 %d일"
 
 msgid "Dayflow 生产力报告 - {date_range}"
 msgstr "Dayflow 생산성 보고서 - {date_range}"
+
+msgid "模板目录不存在"
+msgstr "템플릿 디렉토리가 존재하지 않습니다"
