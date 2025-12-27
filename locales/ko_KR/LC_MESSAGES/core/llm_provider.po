@@ -204,3 +204,6 @@ msgstr "오류: {e}"
 
 msgid "视频文件不存在: {video_path}"
 msgstr "비디오 파일이 존재하지 않습니다: {video_path}"
+
+msgid "\n\n窗口信息：\n"
+msgstr "\n\n창 정보:\n"

@@ -57,7 +57,7 @@ class CardEditDialog(QDialog):
     card_deleted = Signal(int)     # 发送删除的卡片 ID
     
     # 可选类别列表
-    CATEGORIES = [_(x) for x in ["工作", "学习", "编程", "会议", "娱乐", "社交", "休息", "其他"]]
+    CATEGORIES = ["工作", "学习", "编程", "会议", "娱乐", "社交", "休息", "其他"]
     
     def __init__(self, card: 'ActivityCard', parent=None):
         super().__init__(parent)
@@ -84,9 +84,9 @@ class CardEditDialog(QDialog):
         cat_label = QLabel(_("类别"))
         cat_label.setFixedWidth(80)
         self.category_combo = QComboBox()
-        self.category_combo.addItems(self.CATEGORIES)
+        self.category_combo.addItems([_(x) for x in self.CATEGORIES])
         # 设置当前类别
-        if self.card.category in self.CATEGORIES:
+        if any(_(x) == self.card.category for x in self.CATEGORIES):
             self.category_combo.setCurrentText(self.card.category)
         else:
             self.category_combo.setCurrentText(_("其他"))

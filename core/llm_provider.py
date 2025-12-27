@@ -238,7 +238,7 @@ class DayflowBackendProvider:
         # 构建窗口信息文本（包含窗口标题）
         window_info_text = ""
         if window_records:
-            window_info_text = "\n\n窗口信息：\n"
+            window_info_text = _("\n\n窗口信息：\n")
             # 按时间段聚合相同的应用
             current_app = None
             current_title = None
